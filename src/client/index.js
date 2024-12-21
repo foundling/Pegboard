@@ -1,4 +1,4 @@
-function initPegboard() {
+function initPegboard(data=null) {
 
   // template
   const templateGrid = document.querySelector('.template-grid');
@@ -83,6 +83,7 @@ function initPegboard() {
 
 
   let activeColor = null;
+  let activeSymbol = null;
 
   // when a color palette item is clicked, highlight and set to active color
   colorKeyGrid.addEventListener('click', (e) => {
@@ -97,6 +98,7 @@ function initPegboard() {
     const colorSquare = document.querySelector(`.color-key-grid-square#${colorId}`)
     colorSquare.classList.add('active');
     activeColor = colorId;
+    activeSymbol = keyData.colorToSymbol[colorId];
 
   });
 
@@ -128,10 +130,23 @@ function initPegboard() {
     // set new color
     const activeColorClass = `color-${activeColor}`;
     e.target.classList.toggle(activeColorClass);
+    e.target.innerHTML = keyData.colorToSymbol[activeColor];
+
+    if (e.target.dataset.symbol === activeSymbol) {
+      delete e.target.dataset.symbol;
+      e.target.innerHTML = '';
+    } else {
+      e.target.dataset.symbol = keyData.colorToSymbol[activeColor]; 
+    }
+    console.log(e.target);
 
 
   });
 
+  if (data) {
+    // initialize pegboard w/ 1-d array, one for each square.
+    // data-symbol and data color
+  }
 }
 
 initPegboard();

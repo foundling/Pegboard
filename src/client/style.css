@@ -49,6 +49,9 @@ body {
 .grid-square,
 .color-key-grid-square,
 .symbol-key-grid-square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid black;
   background-color: white;
 }
