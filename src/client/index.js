@@ -1,4 +1,6 @@
-function initPegboard(data=null) {
+let savedData = null;
+
+function initPegboard(pegboardData=null) {
 
   // template
   const templateGrid = document.querySelector('.template-grid');
@@ -18,6 +20,8 @@ function initPegboard(data=null) {
   // key symbols
   const symbolKeyGrid = document.querySelector('.symbol-key-grid');
   const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-grid-square');
+  const saveButton = document.querySelector('.navigate-to-save');
+  const loadButton = document.querySelector('.navigate-to-load');
 
   // menu, nav and views
   const menu = document.querySelector('.menu');
@@ -25,8 +29,22 @@ function initPegboard(data=null) {
 
   let currentView = 'create-pegboard'; 
 
+  function save() {
+    const data = [...templateGridSquares].map((el, index, arr) => {
+      const squareData = {
+        color: [...el.classList].find(className => className.startsWith('color-'))?.replace('color-',''),
+        // TODO: color: el.dataset.color,
+        symbol: el.dataset.symbol,
+      };
+      return squareData;
+    });
+    const serializedData = JSON.stringify(data, null, 2);
+    savedData = serializedData;
+  }
+
+
   // navigate to an app view 
-  menu.addEventListener('click', (e) => {
+  function changeView(e) {
 
     if (!e.target.className.includes('nav-item')) {
       return;
@@ -36,14 +54,12 @@ function initPegboard(data=null) {
       .find(v => v.startsWith('navigate-to'))
       ?.replace(/^navigate-to-/,'');
 
-    console.log(targetView, viewElements);
     viewElements.forEach(el => {
       const isTarget = el.classList.contains(`view-${targetView}`); 
       el.classList.toggle('view-active', isTarget);
     });
-    console.log(targetView, viewElements);
 
-  });
+  }
 
 
   // SYMBOLS
@@ -71,8 +87,6 @@ function initPegboard(data=null) {
 
   }, {});
 
-  console.log(keyData);
-
   // initialize key symbols
   SYMBOLS.forEach((unicodeValue, index) => {
 
@@ -86,7 +100,7 @@ function initPegboard(data=null) {
   let activeSymbol = null;
 
   // when a color palette item is clicked, highlight and set to active color
-  colorKeyGrid.addEventListener('click', (e) => {
+  function selectColorAndSymbol(e) {
     if (!e.target.classList.contains('color-key-grid-square')) {
       return;
     }
@@ -100,12 +114,12 @@ function initPegboard(data=null) {
     activeColor = colorId;
     activeSymbol = keyData.colorToSymbol[colorId];
 
-  });
+  }
 
 
   // when a pegboard square is clicked, update w/ active color selection
   // and corresponding symbol
-  templateGrid.addEventListener('click', (e) => {
+  function updatePegboardSquare(e) {
 
     if (!e.target.classList.contains('grid-square')) {
       return;
@@ -138,15 +152,47 @@ function initPegboard(data=null) {
     } else {
       e.target.dataset.symbol = keyData.colorToSymbol[activeColor]; 
     }
-    console.log(e.target);
+  }
 
 
-  });
+  function loadData(serializedData) {
+    if (!serializedData) {
+      return;
+    }
 
-  if (data) {
+
+    const gridData = JSON.parse(serializedData);
+
+    templateGridSquares.forEach((el, index) => {
+
+      const { symbol, color } = gridData[index];
+
+      if (!(symbol && color)) {
+        return;
+      }
+
+      el.dataset.symbol = symbol;
+      el.innerHTML = symbol;
+      el.classList.add(`color-${color}`);
+
+    });
+
+  }
+
+
+  colorKeyGrid.addEventListener('click', selectColorAndSymbol);
+  templateGrid.addEventListener('click', updatePegboardSquare)
+  //menu.addEventListener('click', changeView);
+  saveButton.addEventListener('click', save);
+  loadButton.addEventListener('click', () => loadData(savedData));
+
+  if (pegboardData) {
+
+    loadData(pegboardData);
+    
     // initialize pegboard w/ 1-d array, one for each square.
     // data-symbol and data color
   }
 }
 
-initPegboard();
+initPegboard(savedData);
