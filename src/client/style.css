@@ -1,8 +1,27 @@
+.view {
+  display: none;
+}
+.view.view-active {
+  display: block;
+}
 body {
   margin: 0;
 }
-.container {
+.pegboard-container {
   display: flex;
+  flex-direction: row;
+}
+.pegboard-key-container {
+  display: flex; 
+  flex-direction: column;
+}
+.pegboard-key-title {
+  text-decoration: underline;
+  text-align: center;
+}
+
+.pegboard-key-content {
+  display: flex; 
   flex-direction: row;
 }
 .template-grid {
@@ -10,21 +29,36 @@ body {
   grid-template-columns: repeat(10, 30px);
   grid-template-rows: repeat(10, 30px);
 }
+.symbol-key-grid {
+  display: grid;
+  grid-template-rows: repeat(5, 30px);
+  grid-template-columns: repeat(1, 30px);
+}
 .color-key-grid {
-  margin-left: 40px;
-  margin-top: 150px;
   display: grid;
   grid-template-rows: repeat(5, 30px);
   grid-template-columns: repeat(1, 30px);
 }
 .template-grid,
 .color-key-grid {
-  border: 1px solid black;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+  border-bottom: 1px solid black;
 }
 
-.grid-square, .color-key-grid-square {
+.grid-square,
+.color-key-grid-square,
+.symbol-key-grid-square {
   border: 1px solid black;
   background-color: white;
+}
+
+.symbol-key-grid-square {
+  border: 1px solid white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .color-key-grid-square.active {
@@ -47,22 +81,22 @@ body {
   background-color: blue;
 }
 
-.white {
+.color-white {
   background-color: white;
 }
 
-.blue {
+.color-blue {
   background-color: blue;
 }
 
-.red {
+.color-red {
   background-color: red;
 }
 
-.yellow {
+.color-yellow {
   background-color: yellow;
 }
 
-.green {
+.color-green {
   background-color: green;
 }
