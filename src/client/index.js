@@ -7,7 +7,13 @@ function initPegboard() {
   // key colors
   const colorKeyGrid = document.querySelector('.color-key-grid');
   const allColorSquares = colorKeyGrid.querySelectorAll('.color-key-grid-square');
-  const colorNames = ['white', 'red', 'blue', 'green', 'yellow'];
+  const colorNames = [
+    'white',
+    'red',
+    'blue',
+    'green',
+    'yellow'
+  ];
 
   // key symbols
   const symbolKeyGrid = document.querySelector('.symbol-key-grid');
@@ -40,19 +46,35 @@ function initPegboard() {
   });
 
 
-  // VIEWS
-
   // SYMBOLS
-  const SYMBOLS = {
-    TRIANGLE: '&#9651;',
-    INVERTED_TRIANGLE: '&#x25BD;',
-    SQUARE: '&#x25A1;',
-    WHITE_CIRLCE: '&#x25CB;',
-    BLACK_CIRCLE: '&#x25CF;',
-  };
+  const SYMBOLS = [
+    '&#9651;',
+    '&#x25BD;',
+    '&#x25A1;',
+    '&#x25CB;',
+    '&#x25CF;',
+  ];
+
+
+  const keyData = colorNames.reduce((memo, colorName, index) => {
+
+    if (!memo['colorToSymbol']) {
+      memo['colorToSymbol'] = {};
+    }
+    memo['colorToSymbol'][colorName] = SYMBOLS[index];
+    if (!memo['symbolToColor']) {
+      memo['symbolToColor'] = {};
+    }
+    memo['symbolToColor'][SYMBOLS[index]] = colorName;
+
+    return memo;
+
+  }, {});
+
+  console.log(keyData);
 
   // initialize key symbols
-  Object.entries(SYMBOLS).forEach(([name, unicodeValue], index) => {
+  SYMBOLS.forEach((unicodeValue, index) => {
 
     const symbolKeyGridSquare = symbolKeyGridSquares[index];
     symbolKeyGridSquare.innerHTML = unicodeValue;
@@ -80,6 +102,7 @@ function initPegboard() {
 
 
   // when a pegboard square is clicked, update w/ active color selection
+  // and corresponding symbol
   templateGrid.addEventListener('click', (e) => {
 
     if (!e.target.classList.contains('grid-square')) {
@@ -91,7 +114,8 @@ function initPegboard() {
       return;
     }
 
-    // remove any existing color. TODO: refactor by matching against 'color-${colorName}'
+    // remove any existing color/symbol combo.
+    // TODO: refactor by matching against 'color-${colorName}'
     for (let i = 0; i < colorNames.length; ++i) {
       const colorName = colorNames[i];
       const colorClassName = `color-${colorName}`;
