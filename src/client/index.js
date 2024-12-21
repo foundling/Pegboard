@@ -1,13 +1,48 @@
 function initPegboard() {
 
+  // template
   const templateGrid = document.querySelector('.template-grid');
   const templateGridSquares = templateGrid.querySelectorAll('.grid-square');
+
+  // key colors
   const colorKeyGrid = document.querySelector('.color-key-grid');
-  const symbolKeyGrid = document.querySelector('.symbol-key-grid');
-  const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-grid-square');
   const allColorSquares = colorKeyGrid.querySelectorAll('.color-key-grid-square');
   const colorNames = ['white', 'red', 'blue', 'green', 'yellow'];
 
+  // key symbols
+  const symbolKeyGrid = document.querySelector('.symbol-key-grid');
+  const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-grid-square');
+
+  // menu, nav and views
+  const menu = document.querySelector('.menu');
+  const viewElements = document.querySelectorAll('.view');
+
+  let currentView = 'create-pegboard'; 
+
+  // navigate to an app view 
+  menu.addEventListener('click', (e) => {
+
+    if (!e.target.className.includes('nav-item')) {
+      return;
+    }
+
+    const targetView = [...e.target.classList.values()]
+      .find(v => v.startsWith('navigate-to'))
+      ?.replace(/^navigate-to-/,'');
+
+    console.log(targetView, viewElements);
+    viewElements.forEach(el => {
+      const isTarget = el.classList.contains(`view-${targetView}`); 
+      el.classList.toggle('view-active', isTarget);
+    });
+    console.log(targetView, viewElements);
+
+  });
+
+
+  // VIEWS
+
+  // SYMBOLS
   const SYMBOLS = {
     TRIANGLE: '&#9651;',
     INVERTED_TRIANGLE: '&#x25BD;',
@@ -16,15 +51,18 @@ function initPegboard() {
     BLACK_CIRCLE: '&#x25CF;',
   };
 
+  // initialize key symbols
   Object.entries(SYMBOLS).forEach(([name, unicodeValue], index) => {
+
     const symbolKeyGridSquare = symbolKeyGridSquares[index];
     symbolKeyGridSquare.innerHTML = unicodeValue;
-    //symbolKeyGridSquares[index].
+
   });
 
 
   let activeColor = null;
 
+  // when a color palette item is clicked, highlight and set to active color
   colorKeyGrid.addEventListener('click', (e) => {
     if (!e.target.classList.contains('color-key-grid-square')) {
       return;
@@ -40,6 +78,8 @@ function initPegboard() {
 
   });
 
+
+  // when a pegboard square is clicked, update w/ active color selection
   templateGrid.addEventListener('click', (e) => {
 
     if (!e.target.classList.contains('grid-square')) {
@@ -67,12 +107,6 @@ function initPegboard() {
 
 
   });
-
-  // click on a key grid square => 
-  // deactivates any other activated squares
-  // activates that square
-  // sets click color to that square's color
-  //const colorKeys = colorKeyGrid.querySelectorAll('.color-key-grid-square');
 
 }
 
