@@ -1,6 +1,4 @@
-let savedData = null;
-
-function initPegboard(pegboardData=null) {
+function initPegboard() {
 
   // template
   const templateGrid = document.querySelector('.template-grid');
@@ -20,8 +18,8 @@ function initPegboard(pegboardData=null) {
   // key symbols
   const symbolKeyGrid = document.querySelector('.symbol-key-grid');
   const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-grid-square');
-  const saveButton = document.querySelector('.navigate-to-save');
-  const loadButton = document.querySelector('.navigate-to-load');
+  const saveButton = document.querySelector('#save-button');
+  const loadButton = document.querySelector('#load-button');
 
   // menu, nav and views
   const menu = document.querySelector('.menu');
@@ -29,17 +27,29 @@ function initPegboard(pegboardData=null) {
 
   let currentView = 'create-pegboard'; 
 
+  function saveToLocalStorage(payload) {
+    localStorage.setItem('pegboard', payload);
+  }
+
   function save() {
-    const data = [...templateGridSquares].map((el, index, arr) => {
-      const squareData = {
-        color: [...el.classList].find(className => className.startsWith('color-'))?.replace('color-',''),
-        // TODO: color: el.dataset.color,
-        symbol: el.dataset.symbol,
-      };
-      return squareData;
-    });
-    const serializedData = JSON.stringify(data, null, 2);
-    savedData = serializedData;
+
+    // persist a sparse map of grid state.
+    const data = [...templateGridSquares].reduce((o, el, index) => {
+
+      const color = el.dataset.color;
+      const symbol = el.dataset.symbol;
+
+      if (color && symbol) {
+        o[index] = { color, symbol };
+      }
+
+      return o;
+
+    }, {});
+
+    if (Object.values(data).length > 0) {
+      saveToLocalStorage(JSON.stringify(data));
+    }
   }
 
 
@@ -101,17 +111,23 @@ function initPegboard(pegboardData=null) {
 
   // when a color palette item is clicked, highlight and set to active color
   function selectColorAndSymbol(e) {
+
     if (!e.target.classList.contains('color-key-grid-square')) {
       return;
     }
-    activeColor = null;
-    allColorSquares.forEach(square => {
-      square.classList.remove('active');
-    });
+
     const colorId = e.target.id;
     const colorSquare = document.querySelector(`.color-key-grid-square#${colorId}`)
-    colorSquare.classList.add('active');
+
+    // deactivate old color
+    if (activeColor) {
+      document.querySelector(`#${activeColor}`).classList.toggle('active');
+    }
+
     activeColor = colorId;
+
+    // activate new color
+    colorSquare.classList.add('active');
     activeSymbol = keyData.colorToSymbol[colorId];
 
   }
@@ -125,55 +141,65 @@ function initPegboard(pegboardData=null) {
       return;
     }
 
-    // TODO: add some indication that you need to select a color.
+    // TODO: add some UI indication that you need to select a color.
     if (activeColor === null) {
       return;
     }
 
-    // remove any existing color/symbol combo.
-    // TODO: refactor by matching against 'color-${colorName}'
-    for (let i = 0; i < colorNames.length; ++i) {
-      const colorName = colorNames[i];
-      const colorClassName = `color-${colorName}`;
 
-      if (colorName !== activeColor && e.target.classList.contains(colorClassName)) {
-        e.target.classList.remove(colorClassName);
-      }
-    }
+    // untoggle square
+    if (e.target.dataset.color === activeColor && e.target.dataset.symbol === activeSymbol) {
 
-    // set new color
-    const activeColorClass = `color-${activeColor}`;
-    e.target.classList.toggle(activeColorClass);
-    e.target.innerHTML = keyData.colorToSymbol[activeColor];
-
-    if (e.target.dataset.symbol === activeSymbol) {
+      delete e.target.dataset.color;
       delete e.target.dataset.symbol;
       e.target.innerHTML = '';
+
     } else {
-      e.target.dataset.symbol = keyData.colorToSymbol[activeColor]; 
+      // set square 
+      e.target.dataset.color = activeColor;
+      e.target.dataset.symbol = activeSymbol;
+      e.target.innerHTML = activeSymbol;
     }
+
   }
 
+  function loadFromLocalStorage() {
 
-  function loadData(serializedData) {
-    if (!serializedData) {
+    const pegboardData = localStorage.getItem('pegboard');
+    return pegboardData ? JSON.parse(pegboardData) : null;
+
+  }
+
+  function load() {
+
+    const gridData = loadFromLocalStorage();
+
+    if (!gridData) {
       return;
     }
 
-
-    const gridData = JSON.parse(serializedData);
-
     templateGridSquares.forEach((el, index) => {
 
-      const { symbol, color } = gridData[index];
+      const oldColor = el.dataset.color;
+      const squareData = gridData[index];
 
-      if (!(symbol && color)) {
-        return;
+      // for each grid element, populate with saved data
+      // or re-init square.
+      if (squareData) {
+
+        const { symbol, color } = squareData;
+
+        el.dataset.symbol = symbol;
+        el.dataset.color = color;
+        el.innerHTML = symbol;
+
+      } else {
+
+        el.dataset.symbol = '';
+        el.innerHTML = '';
+        el.dataset.color = '';
+
       }
-
-      el.dataset.symbol = symbol;
-      el.innerHTML = symbol;
-      el.classList.add(`color-${color}`);
 
     });
 
@@ -182,17 +208,12 @@ function initPegboard(pegboardData=null) {
 
   colorKeyGrid.addEventListener('click', selectColorAndSymbol);
   templateGrid.addEventListener('click', updatePegboardSquare)
-  //menu.addEventListener('click', changeView);
+  // TODO: views
+  // menu.addEventListener('click', changeView);
   saveButton.addEventListener('click', save);
-  loadButton.addEventListener('click', () => loadData(savedData));
+  loadButton.addEventListener('click', load);
 
-  if (pegboardData) {
-
-    loadData(pegboardData);
-    
-    // initialize pegboard w/ 1-d array, one for each square.
-    // data-symbol and data color
-  }
+  load();
 }
 
-initPegboard(savedData);
+initPegboard();
