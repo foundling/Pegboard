@@ -7,7 +7,6 @@
   <body>
     <div class="menu">
       <button data-nav="create" class="nav-item active">Create Pegboard</button>
-      <button data-nav="save" class="nav-item" id="save-button">Save Pegboard</button>
       <button data-nav="load" class="nav-item" id="load-button">Load Pegboard</button>
       <button data-nav="list" class="nav-item">Show All Pegboards</button>
     </div>
@@ -17,12 +16,22 @@
     <div class="view view-load">
       load view
     </div>
+    <div class="view view-list">
+      Pegboards:
+      <ul class="pegboard-list">
+      </ul>
+    </div>
+
     <div class="view view-create view-active">
 
       <div class="mode-selector">
-        <label for="pegboard-mode">MODE:</label>
-        <input type="radio" name="pegboard-mode-selector" value="color-mode" checked>color</input>
-        <input type="radio" name="pegboard-mode-selector" value="symbol-mode">symbol</input>
+        <fieldset>
+          <legend>
+            MODE:
+          </legend>
+          <input type="radio" name="pegboard-mode-selector" value="color-mode" checked>color</input>
+          <input type="radio" name="pegboard-mode-selector" value="symbol-mode">symbol</input>
+        </fieldset>
       </div>
 
       <div class="pegboard-container">
@@ -147,6 +156,11 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="pegboard-name">
+        <label for="pegboard-name-input">pegboard name:</label>
+        <input type="text" id="pegboard-name-input" />
+        <button data-nav="save" class="nav-item" id="save-button">Save Pegboard</button>
       </div>
     </div>
     <script src="index.js" type="text/javascript"></script>
