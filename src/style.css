@@ -44,6 +44,7 @@ body {
   background: white;
 }
 
+
 .symbol-key-grid {
   display: grid;
   grid-template-rows: repeat(5, 30px);
@@ -123,4 +124,17 @@ body {
 
 [data-color="green"] {
   background-color: rgb(0,166,76);
+}
+
+.pegboard-name {
+  padding: 20px 0 20px 0;
+  display: inline-flex;
+}
+
+.pegboard-name > label {
+  padding-right: 20px;
+}
+
+#save-button {
+  margin-left: 20px;
 }
