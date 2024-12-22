@@ -19,11 +19,14 @@
     </div>
     <div class="view view-create view-active">
 
-      <button class="view-mode-selector">color view</button>
-      <button class="view-mode-selector">symbol view</button>
+      <div class="mode-selector">
+        <label for="pegboard-mode">MODE:</label>
+        <input type="radio" name="pegboard-mode-selector" value="color-mode" checked>color</input>
+        <input type="radio" name="pegboard-mode-selector" value="symbol-mode">symbol</input>
+      </div>
 
       <div class="pegboard-container">
-        <div class="template-grid">
+        <div class="template-grid color-mode">
           <div class="grid-square"></div>
           <div class="grid-square"></div>
           <div class="grid-square"></div>

@@ -21,6 +21,20 @@ function initPegboard() {
   const saveButton = document.querySelector('#save-button');
   const loadButton = document.querySelector('#load-button');
 
+  // pegboard mode: either 'color-mode' or 'symbol-mode'
+  // initialied in html w/ 'color-mode'
+  const pegboardModeSelector = document.querySelector('.mode-selector');
+
+  function changePegboardMode(e) {
+    if (!e.target.name === 'pegboard-mode-selector') {
+      return;
+    }
+    // css handles showing/hiding bg color in symbol mode
+    // and showing/hiding symbols in color mode.
+    templateGrid.classList.toggle('color-mode');
+    templateGrid.classList.toggle('symbol-mode');
+  }
+
   // menu, nav and views
   const menu = document.querySelector('.menu');
   const viewElements = document.querySelectorAll('.view');
@@ -212,6 +226,7 @@ function initPegboard() {
   // menu.addEventListener('click', changeView);
   saveButton.addEventListener('click', save);
   loadButton.addEventListener('click', load);
+  pegboardModeSelector.addEventListener('change', changePegboardMode); 
 
   load();
 }
