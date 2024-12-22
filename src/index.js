@@ -1,3 +1,4 @@
+debug = true;
 function Pegboard(pegboardName=null) {
 
   // config values
@@ -24,6 +25,9 @@ function Pegboard(pegboardName=null) {
   const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-grid-square');
   const saveButton = document.querySelector('#save-button');
   const loadButton = document.querySelector('#load-button');
+
+  // total pegboard list
+  const pegboardList = document.querySelector('.pegboard-list');
 
 
   // SYMBOLS
@@ -84,35 +88,31 @@ function Pegboard(pegboardName=null) {
    */
 
   function initStorage() {
-    return saveToLocalStorage(DEFAULT_PEGBOARD_ID, {});
+    return savePegboard(DEFAULT_PEGBOARD_ID, {});
   }
 
-  function loadFromLocalStorage(pegboardId=null) {
+  function loadAppFromLocalStorage() {
 
-    const pegboardData = localStorage.getItem(APP_STORAGE_KEY);
+    const payload = localStorage.getItem(APP_STORAGE_KEY);
+    const appData = JSON.parse(payload);
 
-    if (pegboardId) {
-      return JSON.parse(pegboardData)?.[pegboardId];
-    } else {
-      return pegboardData;
+    if (debug) {
+      console.log(`[loaded] app data`); 
+      console.log(JSON.stringify(appData, null, 2));
     }
+
+    return appData;
 
   }
 
   function loadAllPegboards() {
-    const pegboards = loadFromLocalStorage();
+    return loadAppFromLocalStorage();
   }
 
 
   function save() {
 
     const pegboardId = currentPegboardId;
-
-    if (!pegboardId) {
-      // TODO: add error UI.
-      return;
-      throw new Error('error saving pegboard: no current pegboard id');
-    }
 
     // persist a sparse map of grid state.
     const data = [...templateGridSquares].reduce((o, el, index) => {
@@ -128,12 +128,12 @@ function Pegboard(pegboardName=null) {
 
     }, {});
 
-    saveToLocalStorage(pegboardId, data);
+    savePegboard(pegboardId, data);
   }
 
-  function saveToLocalStorage(id, payload) {
+  function savePegboard(id, payload) {
 
-    const currentAppData = loadFromLocalStorage();
+    const currentAppData = loadAppFromLocalStorage();
     let newAppData;
 
     // nothing saved for this app yet,
@@ -145,12 +145,13 @@ function Pegboard(pegboardName=null) {
     } else {
       // previously stored data. we have all data under 'pegboard'
       // update it.
-      newAppData = {
-        ...currentAppData[currentPegboardId],
-        [id]: payload
-      };
+      newAppData = currentAppData;
+      newAppData[id] = payload;
     }
-    console.log({newAppData})
+    if (debug) {
+      console.log(`[saved] ${id}`); 
+      console.log(JSON.stringify(newAppData, null, 2));
+    }
     localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(newAppData));
     return JSON.parse(localStorage.getItem(APP_STORAGE_KEY));
 
@@ -159,16 +160,13 @@ function Pegboard(pegboardName=null) {
 
   function loadPegboard(pegboardId) {
 
-    const squareConfigs = loadFromLocalStorage(pegboardId);
-
-    if (!squareConfigs) {
-      return;
-    }
+    const squareConfigs = loadAppFromLocalStorage();
+    const squareConfig = squareConfigs[pegboardId];
 
     templateGridSquares.forEach((el, index) => {
 
       const oldColor = el.dataset.color;
-      const squareData = squareConfigs[index];
+      const squareData = squareConfig[index];
 
       // for each grid element, populate with saved data
       // or re-init square.
@@ -199,6 +197,12 @@ function Pegboard(pegboardName=null) {
    * UI Functions
    */
 
+  // update pegboard input name
+  function changePegboardName(e) {
+    currentPegboardId = e.target.value; 
+    console.log(currentPegboardId);
+  }
+
   // toggle color / symbol view mode.
   function changePegboardMode(e) {
     if (!e.target.name === 'pegboard-mode-selector') {
@@ -212,7 +216,6 @@ function Pegboard(pegboardName=null) {
 
 
 
-  // navigate to an app view 
   function changeView(e) {
 
     const targetView = e.target.dataset.nav; 
@@ -223,12 +226,24 @@ function Pegboard(pegboardName=null) {
     });
 
     if (targetView === 'list') {
-      const pegboards = loadAllPegboards();
-      populateList(pegboards);
-
+      const pegboardIds = Object.keys(loadAllPegboards());
+      populatePegboardList(pegboardIds);
     }
 
   }
+
+  // View-specific functions
+  function populatePegboardList(ids) {
+    const listMarkup = ids.map(id => `
+      <li>${id}</li>
+    `);
+
+    while (pegboardList.hasChildNodes()) {
+      pegboardList.removeChild(pegboardList.lastChild);
+    }
+    pegboardList.insertAdjacentHTML('beforeend', listMarkup);
+  }
+
   // when a color palette item is clicked, highlight and set to active color
   function selectColorAndSymbol(e) {
 
@@ -296,20 +311,23 @@ function Pegboard(pegboardName=null) {
   templateGrid.addEventListener('click', updatePegboardSquare)
   menu.addEventListener('click', changeView);
   saveButton.addEventListener('click', save);
+  pegboardNameInput.addEventListener('change', changePegboardName);
   //loadButton.addEventListener('click', load);
   pegboardModeSelector.addEventListener('change', changePegboardMode); 
 
   function initApp() {
-    // app not loaded before, initialize w/ default pegboard
-    if (!loadFromLocalStorage(DEFAULT_PEGBOARD_ID)) {
-      initStorage();
 
+    let appData;
+
+    if (!loadAppFromLocalStorage()) {
+      appData = initStorage();
     } else {
-      //app has been initialized, so load the default pegboard. 
-      loadPegboard(DEFAULT_PEGBOARD_ID);
+      appData = loadAppFromLocalStorage();
     }
-    currentPegboardId = DEFAULT_PEGBOARD_ID;
+
+    currentPegboardId = appData['default'] ? 'default' :  Object.keys(appData)[0]; 
     pegboardNameInput.value = currentPegboardId;
+    loadPegboard(currentPegboardId);
   }
 
   initApp();
