@@ -1,5 +1,4 @@
-debug = true;
-function Pegboard(pegboardName=null) {
+function Pegboard() {
 
   // config values
   const APP_STORAGE_KEY = 'pegboard';
@@ -106,11 +105,6 @@ function Pegboard(pegboardName=null) {
     const payload = localStorage.getItem(APP_STORAGE_KEY);
     const appData = JSON.parse(payload);
 
-    if (debug) {
-      console.log(`[loaded] app data`); 
-      console.log(JSON.stringify(appData, null, 2));
-    }
-
     return appData;
 
   }
@@ -169,11 +163,9 @@ function Pegboard(pegboardName=null) {
       newAppData = currentAppData;
       newAppData[record.id] = record;
     }
-    if (debug) {
-      console.log(`[saved] ${record.id}`); 
-      console.log(JSON.stringify(newAppData, null, 2));
-    }
+
     localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(newAppData));
+
     return JSON.parse(localStorage.getItem(APP_STORAGE_KEY));
 
   }
