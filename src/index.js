@@ -1,4 +1,4 @@
-function Pegboard() {
+(function Pegboard() {
 
   // config values
   const APP_STORAGE_KEY = 'pegboard';
@@ -368,6 +368,4 @@ function Pegboard() {
   }
 
   initApp();
-}
-
-Pegboard();
+})();
