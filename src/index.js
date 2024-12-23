@@ -5,6 +5,12 @@ function Pegboard(pegboardName=null) {
   const APP_STORAGE_KEY = 'pegboard';
   const DEFAULT_PEGBOARD_ID =  'default'
 
+ // app state
+  let currentView = 'create-pegboard'; 
+  let activeColor = null;
+  let activeSymbol = null;
+  let currentPegboardId = DEFAULT_PEGBOARD_ID; 
+
   // template
   const templateGrid = document.querySelector('.template-grid');
   const templateGridSquares = templateGrid.querySelectorAll('.grid-square');
@@ -23,12 +29,12 @@ function Pegboard(pegboardName=null) {
   // key symbols
   const symbolKeyGrid = document.querySelector('.symbol-key-grid');
   const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-grid-square');
-  const saveButton = document.querySelector('#save-button');
-  const loadButton = document.querySelector('#load-button');
+  const saveButton = document.getElementById('save-button');
+  const loadButton = document.getElementById('load-button');
 
   // total pegboard list
-  const pegboardList = document.querySelector('.pegboard-list');
-
+  const pegboardSelect = document.getElementById('pegboard-select')
+  const pegboardSelectDefaultOption = document.getElementById('pegboard-select-default')
 
   // SYMBOLS
   const SYMBOLS = [
@@ -38,7 +44,6 @@ function Pegboard(pegboardName=null) {
     '&#x25CB;',
     '&#x25CF;',
   ];
-
 
   const keyData = colorNames.reduce((memo, colorName, index) => {
 
@@ -74,15 +79,9 @@ function Pegboard(pegboardName=null) {
   const viewElements = document.querySelectorAll('.view');
 
   // pegboard name
-  const pegboardNameInput = document.querySelector('#pegboard-name-input');
+  const pegboardNameInput = document.getElementById('pegboard-name-input');
 
-  // app state
-  let currentView = 'create-pegboard'; 
-  let activeColor = null;
-  let activeSymbol = null;
-  let currentPegboardId = DEFAULT_PEGBOARD_ID; 
-
-
+ 
   /*
    * Storage Functions
    */
@@ -200,7 +199,6 @@ function Pegboard(pegboardName=null) {
   // update pegboard input name
   function changePegboardName(e) {
     currentPegboardId = e.target.value; 
-    console.log(currentPegboardId);
   }
 
   // toggle color / symbol view mode.
@@ -256,7 +254,7 @@ function Pegboard(pegboardName=null) {
 
     // deactivate old color
     if (activeColor) {
-      document.querySelector(`#${activeColor}`).classList.toggle('active');
+      document.getElementById(`${activeColor}`).classList.toggle('active');
     }
 
     activeColor = colorId;
@@ -309,12 +307,13 @@ function Pegboard(pegboardName=null) {
 
   colorKeyGrid.addEventListener('click', selectColorAndSymbol);
   templateGrid.addEventListener('click', updatePegboardSquare)
-  menu.addEventListener('click', changeView);
+  //menu.addEventListener('click', changeView);
   saveButton.addEventListener('click', save);
   pegboardNameInput.addEventListener('change', changePegboardName);
   //loadButton.addEventListener('click', load);
   pegboardModeSelector.addEventListener('change', changePegboardMode); 
 
+  // app initialization
   function initApp() {
 
     let appData;
@@ -327,7 +326,34 @@ function Pegboard(pegboardName=null) {
 
     currentPegboardId = appData['default'] ? 'default' :  Object.keys(appData)[0]; 
     pegboardNameInput.value = currentPegboardId;
+
     loadPegboard(currentPegboardId);
+    initPegboardSelect(Object.keys(appData), currentPegboardId);
+
+  }
+
+  // pegboard selector
+
+  pegboardSelect.addEventListener('change', switchPegboardById);
+
+  function switchPegboardById(e) {
+
+    const pegboardId = e.target.value;
+
+    currentPegboardId = pegboardId; 
+
+    loadPegboard(pegboardId);
+
+    pegboardNameInput.value = pegboardId;
+
+  }
+
+  function initPegboardSelect(allPegboardNames, defaultPegboardName) {
+
+    const options = allPegboardNames
+      .map(name => `<option value="${name}">${name}</option>`)
+      .join('');
+    pegboardSelect.insertAdjacentHTML('beforeend', options);
   }
 
   initApp();
