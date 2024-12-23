@@ -74,7 +74,6 @@ function Pegboard() {
 
   // menu, nav and views
   const menu = document.querySelector('.menu');
-  const viewElements = document.querySelectorAll('.view');
  
   /*
    * Storage Functions
@@ -231,22 +230,6 @@ function Pegboard() {
 
 
 
-  function changeView(e) {
-
-    const targetView = e.target.dataset.nav; 
-
-    viewElements.forEach(el => {
-      const isTarget = el.classList.contains(`view-${targetView}`); 
-      el.classList.toggle('view-active', isTarget);
-    });
-
-    if (targetView === 'list') {
-      const pegboardIds = Object.keys(loadAllPegboards());
-      populatePegboardList(pegboardIds);
-    }
-
-  }
-
   // View-specific functions
   function populatePegboardList(ids) {
     const listMarkup = ids.map(id => `
@@ -366,10 +349,8 @@ function Pegboard() {
 
   colorKeyGrid.addEventListener('click', selectColorAndSymbol);
   templateGrid.addEventListener('click', updatePegboardSquare)
-  //menu.addEventListener('click', changeView);
   pegboardNameInput.addEventListener('change', changePegboardName);
   pegboardSelect.addEventListener('change', switchPegboardById);
-  //loadButton.addEventListener('click', load);
   pegboardModeSelector.addEventListener('change', changePegboardMode); 
   newPegboardButton.addEventListener('click', createNewPegboard);
 
