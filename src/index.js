@@ -35,6 +35,7 @@ function Pegboard(pegboardName=null) {
   const pegboardSelect = document.getElementById('pegboard-select')
   const pegboardSelectDefaultOption = document.getElementById('pegboard-select-default')
   const pegboardNameInput = document.getElementById('pegboard-name-input');
+  const newPegboardButton = document.getElementById('new-pegboard');
 
   // SYMBOLS
   const SYMBOLS = [
@@ -80,7 +81,7 @@ function Pegboard(pegboardName=null) {
    * Storage Functions
    */
 
-  function PegboardRecord({ id=1, name, squares }) {
+  function PegboardRecord({ id=1, name='new pegboard', squares=[] }) {
     return {
       id,
       name,
@@ -92,7 +93,7 @@ function Pegboard(pegboardName=null) {
 
     const record = PegboardRecord({
       id: DEFAULT_PEGBOARD_ID,
-      name: 'default',
+      name: 'new pegboard',
       squares: {}
     })
 
@@ -220,6 +221,8 @@ function Pegboard(pegboardName=null) {
 
     currentPegboard.name = e.target.value;
     save();
+    const allPegboards = loadAllPegboards();
+    initPegboardSelect(allPegboards, currentPegboard);
 
   }
 
@@ -339,10 +342,29 @@ function Pegboard(pegboardName=null) {
       return `<option ${ selected ? 'selected' : '' } value="${id}">${pegboard.name}</option>`;
     }).join('');
 
+    while (pegboardSelect.lastChild) {
+      pegboardSelect.removeChild(pegboardSelect.lastChild);
+    }
     pegboardSelect.insertAdjacentHTML('beforeend', options);
 
   }
 
+  function createNewPegboard() {
+
+    const pegboards = loadAllPegboards();
+    const sortedKeys = Object.keys(pegboards).map(k => parseInt(k)).sort()
+    const latestRecord = sortedKeys.slice(-1)[0];
+
+    const newPegboard = PegboardRecord({ id: latestRecord + 1 });
+    const appData = savePegboard(newPegboard);
+
+    currentPegboard = appData[newPegboard.id];
+
+    initPegboardSelect(appData, currentPegboard);
+    pegboardNameInput.value = currentPegboard.name;
+    initPegboardSquares(currentPegboard);
+
+  }
 
 
   /*
@@ -357,6 +379,7 @@ function Pegboard(pegboardName=null) {
   pegboardSelect.addEventListener('change', switchPegboardById);
   //loadButton.addEventListener('click', load);
   pegboardModeSelector.addEventListener('change', changePegboardMode); 
+  newPegboardButton.addEventListener('click', createNewPegboard);
 
   // app initialization
   function initApp() {
