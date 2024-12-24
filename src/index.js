@@ -21,9 +21,9 @@
   const colorNames = [
     'white',
     'red',
-    'blue',
+    'yellow',
     'green',
-    'yellow'
+    'blue',
   ];
 
   // key symbols
