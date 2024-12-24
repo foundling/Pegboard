@@ -6,16 +6,36 @@
   display: block;
 }
 
+html {
+  height: 100%;
+}
+
 body {
-  margin: 0;
+  display: flex;
+  flex-direction:column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+html, body * {
+  font-family: sans-serif;
+}
+
+.pegboard-app {
+  width: 600px;
+  height: 600px;
 }
 
 .pegboard-container {
   display: flex;
   flex-direction: row;
+  align-self: flex-end;
 }
 
 .pegboard-key-container {
+  margin-left: 100px;
+  margin-top: 80px;
   display: flex; 
   flex-direction: column;
 }
@@ -62,6 +82,7 @@ body {
   border-top: 1px solid black;
   border-left: 1px solid black;
   border-bottom: 1px solid black;
+  border-right: 1px solid black;
 }
 
 .grid-square,
@@ -83,7 +104,7 @@ body {
 }
 
 .color-key-grid-square.active {
-  border: 2px solid black;
+  border: 3px dotted black;
 }
 
 .color-key-grid-square#white {
@@ -137,4 +158,23 @@ body {
 
 #save-button {
   margin-left: 20px;
+}
+
+.print-view > :not(.pegboard-container) {
+  display: none;
+}
+
+.print-view {
+  zoom: 1.5;
+}
+
+.pegboard-list, .view-mode-selector {
+  margin: 20px 0 20px 0;
+}
+#print-button > .print-button-link {
+  text-decoration: none;
+  color: black;
+}
+#file-input {
+  display: none;
 }

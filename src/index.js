@@ -5,11 +5,12 @@
   const DEFAULT_PEGBOARD_ID =  1;
 
  // app state
-  let currentView = 'create-pegboard'; 
   let activeColor = null;
   let activeSymbol = null;
   let currentPegboard = null;
+  let viewMode = 'color'; // color | symbol
 
+  const pegboardAppContainer = document.querySelector('.pegboard-app');
   // template
   const templateGrid = document.querySelector('.template-grid');
   const templateGridSquares = templateGrid.querySelectorAll('.grid-square');
@@ -35,6 +36,74 @@
   const pegboardSelectDefaultOption = document.getElementById('pegboard-select-default')
   const pegboardNameInput = document.getElementById('pegboard-name-input');
   const newPegboardButton = document.getElementById('new-pegboard');
+  const printButton = document.getElementById('print-button');
+  const exportButton = document.getElementById('export-button');
+  const importButton = document.getElementById('import-button');
+  const fileInput = document.getElementById('file-input');
+
+
+  // data import / export 
+  async function importFile(e) {
+
+    fileInput.click()
+
+    const file = fileInput.files[0];
+
+    if (!file) return;
+
+    const json = await file.text();
+    const importedData = JSON.parse(json);
+    const { result, msg } = validatePegboardData(importedData) 
+
+    if (!validatePegboardData(importedData)) {
+      throw new Error('invalid import data!');
+    }
+    importPegboardData(importedData);
+  }
+
+  function validatePegboardData(data) {
+
+    const hasAppKey = APP_STORAGE_KEY in data;
+    const hasPegboardIndexKeys = Object.keys(data[APP_STORAGE_KEY])
+      .map(k => parseInt(k))
+      .every(n => !Number.isNaN(n)); 
+    const hasProperRecords = Object.values(data[APP_STORAGE_KEY]).every(record => {
+      return 'id' in record 
+          && 'name' in record
+          && 'timestamp' in record
+          && 'squares' in record;
+    });
+
+    if (!hasAppKey) return { result: false, msg: 'no app key' }
+    if (!hasPegboardIndexKeys) return { result: false, msg: 'bad index keys' }
+    if (!hasProperRecords) return { result: false, msg:  'bad records' }
+
+    return { result: true } ;
+
+  }
+
+  function openFileInput(e) {
+    fileInput.click();
+  }
+
+  function triggerDownload(e) {
+    const exportData = {
+      [APP_STORAGE_KEY]: loadAppFromLocalStorage()
+    };
+    const blob = new Blob(
+      [JSON.stringify(exportData, null, 2)],
+      { content: 'application/json' }
+    );
+    const url = URL.createObjectURL(blob);
+    e.target.href=url;
+  }
+
+
+  function openPrintWindow() {
+
+    window.open(`?print=true&mode=${viewMode}`);
+
+  }
 
   // SYMBOLS
   const SYMBOLS = [
@@ -70,7 +139,7 @@
 
   // pegboard mode: either 'color-mode' or 'symbol-mode'
   // initialied in html w/ 'color-mode'
-  const pegboardModeSelector = document.querySelector('.mode-selector');
+  const viewModeSelector = document.querySelector('.view-mode-selector');
 
   // menu, nav and views
   const menu = document.querySelector('.menu');
@@ -83,7 +152,8 @@
     return {
       id,
       name,
-      squares
+      squares,
+      timestamp: new Date() / 1000
     };
   }
 
@@ -92,7 +162,8 @@
     const record = PegboardRecord({
       id: DEFAULT_PEGBOARD_ID,
       name: 'new pegboard',
-      squares: {}
+      squares: {},
+      timestamp: new Date() / 1000
     })
 
     return savePegboard(record);
@@ -107,12 +178,18 @@
     return appData;
 
   }
+  
+  function importPegboardData(data) {
+    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(data[APP_STORAGE_KEY]));
+    initApp();
+  }
 
   function loadPegboard(pegboardId) {
 
     const appData = loadAppFromLocalStorage();
+    const newPegboard = appData[pegboardId]; 
 
-    return appData[pegboardId];
+    return newPegboard;
 
   }
 
@@ -139,7 +216,8 @@
     const record = PegboardRecord({
       id: currentPegboard.id,
       name: currentPegboard.name,
-      squares
+      squares,
+      timestamp: new Date() / 1000
     });
 
     savePegboard(record);
@@ -217,17 +295,41 @@
 
   }
 
+  // print mode
+  function setPrintMode(inPrintMode) {
+
+    if (!inPrintMode) {
+      return;
+    }
+
+    pegboardAppContainer.classList.toggle('print-view', inPrintMode);
+
+  }
+
   // toggle color / symbol view mode.
-  function changePegboardMode(e) {
+
+  function onViewModeChange(e) {
+
     if (!e.target.name === 'pegboard-mode-selector') {
       return;
     }
-    // css handles showing/hiding bg color in symbol mode
-    // and showing/hiding symbols in color mode.
-    templateGrid.classList.toggle('color-mode');
-    templateGrid.classList.toggle('symbol-mode');
+
+    setViewMode(e.target.value);
+
   }
 
+  function setViewMode(newViewMode) {
+
+    viewMode = newViewMode;
+    templateGrid.classList.toggle('color-mode', newViewMode === 'color');
+    templateGrid.classList.toggle('symbol-mode', newViewMode === 'symbol');
+
+    viewModeSelector.querySelectorAll('input').forEach(el => {
+      el.checked = el.value === newViewMode;
+    });
+
+
+  }
 
 
   // View-specific functions
@@ -330,7 +432,9 @@
     const sortedKeys = Object.keys(pegboards).map(k => parseInt(k)).sort()
     const latestRecord = sortedKeys.slice(-1)[0];
 
-    const newPegboard = PegboardRecord({ id: latestRecord + 1 });
+    const newPegboard = PegboardRecord({
+      id: latestRecord + 1
+    });
     const appData = savePegboard(newPegboard);
 
     currentPegboard = appData[newPegboard.id];
@@ -351,19 +455,42 @@
   templateGrid.addEventListener('click', updatePegboardSquare)
   pegboardNameInput.addEventListener('change', changePegboardName);
   pegboardSelect.addEventListener('change', switchPegboardById);
-  pegboardModeSelector.addEventListener('change', changePegboardMode); 
+  viewModeSelector.addEventListener('change', onViewModeChange); 
   newPegboardButton.addEventListener('click', createNewPegboard);
+  printButton.addEventListener('click', openPrintWindow);
+  exportButton.addEventListener('click', triggerDownload);
+  importButton.addEventListener('click', openFileInput);
+  fileInput.addEventListener('change', importFile);
+
+  function findLastTouched(appData) {
+
+    const records = Object.values(appData);
+    if (records.length === 1) {
+      return records[0];
+    } else {
+      return records.sort((e1, e2) => e2.timestamp - e1.timestamp)[0]
+    }
+
+  }
 
   // app initialization
   function initApp() {
 
     const appData = loadAppFromLocalStorage() || initStorage();
 
-    currentPegboard = appData[DEFAULT_PEGBOARD_ID];
+    const searchParams = new URLSearchParams(document.location.search);
+    const inPrintMode = searchParams.has('print');
+    viewMode = searchParams.get('mode') || 'color';
+
+
+    currentPegboard = findLastTouched(appData);
     pegboardNameInput.value = currentPegboard.name;
 
     initPegboardSquares(currentPegboard);
     initPegboardSelect(appData, currentPegboard);
+
+    setPrintMode(inPrintMode);
+    setViewMode(viewMode);
 
   }
 
