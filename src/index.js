@@ -11,6 +11,7 @@
   let viewMode = 'color'; // color | symbol
 
   const pegboardAppContainer = document.querySelector('.pegboard-app');
+  const pegboardContainer = document.querySelector('.pegboard-container');
   // template
   const templateGrid = document.querySelector('.template-grid');
   const templateGridSquares = templateGrid.querySelectorAll('.grid-square');
@@ -36,7 +37,7 @@
   const pegboardSelectDefaultOption = document.getElementById('pegboard-select-default')
   const pegboardNameInput = document.getElementById('pegboard-name-input');
   const newPegboardButton = document.getElementById('new-pegboard');
-  const printButton = document.getElementById('print-button');
+  const saveButton = document.getElementById('save-button');
   const exportButton = document.getElementById('export-button');
   const importButton = document.getElementById('import-button');
   const fileInput = document.getElementById('file-input');
@@ -98,6 +99,42 @@
     e.target.href=url;
   }
 
+
+  function onSave() {
+    createPdf(currentPegboard.name);
+  }
+
+  function createPdf(name) {
+
+    const colorClone = pegboardContainer.cloneNode(true);
+
+    colorClone.classList.remove('color-mode');
+    colorClone.classList.remove('symbol-mode');
+    colorClone.classList.add('color-mode');
+    colorClone.classList.add('html2pdf__page-break');       
+
+    const symbolClone = pegboardContainer.cloneNode(true);
+
+    symbolClone.classList.remove('color-mode');
+    symbolClone.classList.remove('symbol-mode');
+    symbolClone.classList.add('symbol-mode');
+    symbolClone.classList.add('html2pdf__page-break');       
+
+    const container = document.createElement('div');
+    container.classList.add('print-container');
+    container.appendChild(colorClone);
+    container.appendChild(symbolClone);
+
+    const pdf = html2pdf(container, {
+      filename: `${name}.pdf`,
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 4 },
+      pagebreak: {
+        mode: 'legacy'
+      }
+    });
+
+  }
 
   function openPrintWindow() {
 
@@ -321,8 +358,8 @@
   function setViewMode(newViewMode) {
 
     viewMode = newViewMode;
-    templateGrid.classList.toggle('color-mode', newViewMode === 'color');
-    templateGrid.classList.toggle('symbol-mode', newViewMode === 'symbol');
+    pegboardContainer.classList.toggle('color-mode', newViewMode === 'color');
+    pegboardContainer.classList.toggle('symbol-mode', newViewMode === 'symbol');
 
     viewModeSelector.querySelectorAll('input').forEach(el => {
       el.checked = el.value === newViewMode;
@@ -457,7 +494,8 @@
   pegboardSelect.addEventListener('change', switchPegboardById);
   viewModeSelector.addEventListener('change', onViewModeChange); 
   newPegboardButton.addEventListener('click', createNewPegboard);
-  printButton.addEventListener('click', openPrintWindow);
+  //printButton.addEventListener('click', openPrintWindow);
+  saveButton.addEventListener('click', onSave);
   exportButton.addEventListener('click', triggerDownload);
   importButton.addEventListener('click', openFileInput);
   fileInput.addEventListener('change', importFile);
