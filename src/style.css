@@ -41,7 +41,6 @@ html, body * {
 }
 
 .pegboard-key-title {
-  text-decoration: underline;
   text-align: center;
 }
 
@@ -51,16 +50,17 @@ html, body * {
 }
 
 .template-grid {
+  background: lightgray;
   display: grid;
   grid-template-columns: repeat(10, 30px);
   grid-template-rows: repeat(10, 30px);
 }
 
-.template-grid.color-mode > .grid-square {
+.pegboard-container.color-mode .grid-square {
   color: transparent;
 }
 
-.template-grid.symbol-mode > .grid-square {
+.pegboard-container.symbol-mode .grid-square {
   background: white;
 }
 
@@ -175,6 +175,12 @@ html, body * {
   text-decoration: none;
   color: black;
 }
+
 #file-input {
   display: none;
+}
+
+.print-container > .pegboard-container {
+  zoom: 1.2;
+  margin: 200px 130px 0px 150px; 
 }
