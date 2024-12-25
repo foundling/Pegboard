@@ -12,29 +12,29 @@
       'blue',
     ];
 
-    // SYMBOLS
-    const SYMBOLS = [
-      '&#9651;',
-      '&#x25BD;',
-      '&#x25A1;',
-      '&#x25CB;',
-      '&#x25CF;',
-    ];
+  // SYMBOLS
+  const SYMBOLS = [
+    '&#9651;',
+    '&#x25BD;',
+    '&#x25A1;',
+    '&#x25CB;',
+    '&#x25CF;',
+  ];
 
-    const keyData = colorNames.reduce((memo, colorName, index) => {
+  const keyData = colorNames.reduce((memo, colorName, index) => {
 
-      if (!memo['colorToSymbol']) {
-        memo['colorToSymbol'] = {};
-      }
-      memo['colorToSymbol'][colorName] = SYMBOLS[index];
-      if (!memo['symbolToColor']) {
-        memo['symbolToColor'] = {};
-      }
-      memo['symbolToColor'][SYMBOLS[index]] = colorName;
+    if (!memo['colorToSymbol']) {
+      memo['colorToSymbol'] = {};
+    }
+    memo['colorToSymbol'][colorName] = SYMBOLS[index];
+    if (!memo['symbolToColor']) {
+      memo['symbolToColor'] = {};
+    }
+    memo['symbolToColor'][SYMBOLS[index]] = colorName;
 
-      return memo;
+    return memo;
 
-    }, {});
+  }, {});
 
   // app state
   let activeColor = null;
@@ -46,7 +46,7 @@
   const pegboardAppContainer = document.querySelector('.pegboard-app');
   const pegboardContainer = document.querySelector('.pegboard-container');
   const templateGrid = document.querySelector('.pegboard');
-  const templateGridSquares = templateGrid.querySelectorAll('.pegboard-square');
+  const pegboardSquares = templateGrid.querySelectorAll('.pegboard-square');
   const colorKeyGrid = document.querySelector('.color-key');
   const allColorSquares = colorKeyGrid.querySelectorAll('.color-key-square');
   const symbolKeyGrid = document.querySelector('.symbol-key');
@@ -57,6 +57,7 @@
   const pegboardNameInput = document.getElementById('pegboard-name-input');
   const newPegboardButton = document.getElementById('new-pegboard');
   const clearPegboardButton = document.getElementById('clear-pegboard');
+  const copyPegboardButton = document.getElementById('copy-pegboard');
   const saveButton = document.getElementById('save-button');
   const exportButton = document.getElementById('download-link');
   const importButton = document.getElementById('import-button');
@@ -228,10 +229,10 @@
     return loadAppFromLocalStorage();
   }
 
-  function savePegboard(pegboard) {
+  function getSquareDataFromPegboard(pegboardSquareElements) {
 
     // persist a sparse map of grid state.
-    const squares = [...templateGridSquares].reduce((o, el, index) => {
+    return [...pegboardSquareElements].reduce((o, el, index) => {
 
       const color = el.dataset.color;
       const symbol = el.dataset.symbol;
@@ -244,12 +245,18 @@
 
     }, {});
 
+  }
+
+  function savePegboard(pegboardRecord) {
+
+    /*
     const record = PegboardRecord({
       id: pegboard.id,
       name: pegboard.name,
       squares,
       timestamp: new Date() / 1000
     });
+    */
 
     const currentAppData = loadAppFromLocalStorage();
     let newAppData;
@@ -258,13 +265,13 @@
     // create entire app data structure
     if (!currentAppData) {
       newAppData = {
-        [record.id]: record
+        [pegboardRecord.id]: pegboardRecord
       }
     } else {
       // previously stored data. we have all data under 'pegboard'
       // update it.
       newAppData = currentAppData;
-      newAppData[record.id] = record;
+      newAppData[pegboardRecord.id] = pegboardRecord;
     }
 
     localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(newAppData));
@@ -276,7 +283,7 @@
 
   function initPegboardSquares(record) {
 
-    templateGridSquares.forEach((el, index) => {
+    pegboardSquares.forEach((el, index) => {
 
       const oldColor = el.dataset.color;
       const squareData = record.squares[index]; 
@@ -418,6 +425,10 @@
       e.target.innerHTML = activeSymbol;
     }
 
+    // persist a sparse map of grid state.
+    const squares = getSquareDataFromPegboard(pegboardSquares);
+    currentPegboard.squares = squares;
+
     savePegboard(currentPegboard);
   }
 
@@ -448,19 +459,43 @@
 
   }
 
+  function copyPegboard() {
+
+    const pegboards = loadAllPegboards();
+    const sortedKeys = Object.keys(pegboards).map(k => parseInt(k)).sort()
+    const latestRecord = sortedKeys.slice(-1)[0];
+
+    const newPegboardRecord = PegboardRecord({
+      id: latestRecord + 1,
+      name: `${currentPegboard.name} copy`,
+      squares: currentPegboard.squares
+    });
+
+    savePegboard(newPegboardRecord);
+
+    initApp();
+  }
+
+  function clearPegboard() {
+    // save pegboard with empty squares obj
+    currentPegboard.squares = {}; 
+    savePegboard(currentPegboard);
+    initApp();
+  }
+
   function createNewPegboard() {
 
     const pegboards = loadAllPegboards();
     const sortedKeys = Object.keys(pegboards).map(k => parseInt(k)).sort()
     const latestRecord = sortedKeys.slice(-1)[0];
 
-    const newPegboard = PegboardRecord({
+    const newPegboardRecord = PegboardRecord({
       id: latestRecord + 1,
-      name: `${currentPegboard.name} copy`
+      name: 'new pegboard'
     });
-    const appData = savePegboard(newPegboard);
+    const appData = savePegboard(newPegboardRecord);
 
-    currentPegboard = appData[newPegboard.id];
+    currentPegboard = appData[newPegboardRecord.id];
 
     initPegboardSelect(appData, currentPegboard);
     pegboardNameInput.value = currentPegboard.name;
@@ -478,6 +513,8 @@
   pegboardNameInput.addEventListener('change', changePegboardName);
   pegboardSelect.addEventListener('change', switchPegboardById);
   newPegboardButton.addEventListener('click', createNewPegboard);
+  clearPegboardButton.addEventListener('click', clearPegboard);
+  copyPegboardButton.addEventListener('click', copyPegboard);
 
   viewModeSelector.addEventListener('change', onViewModeChange); 
   saveButton.addEventListener('click', onSave);
