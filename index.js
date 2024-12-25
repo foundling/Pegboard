@@ -65,7 +65,7 @@
   const viewModeSelector = document.querySelector('.view-mode-selector');
   const menu = document.querySelector('.menu');
 
- 
+
   // initialize key symbols
   SYMBOLS.forEach((unicodeValue, index) => {
 
@@ -75,9 +75,9 @@
   });
 
 
- 
+
   /*
-   * data import / export 
+   * data import / export
    */
   async function onFileSelect(e) {
 
@@ -89,7 +89,7 @@
 
     const json = await file.text();
     const importedData = JSON.parse(json);
-    const { result, msg } = validatePegboardData(importedData) 
+    const { result, msg } = validatePegboardData(importedData)
 
     if (!validatePegboardData(importedData)) {
       throw new Error('invalid import data!');
@@ -102,9 +102,9 @@
     const hasAppKey = APP_STORAGE_KEY in data;
     const hasPegboardIndexKeys = Object.keys(data[APP_STORAGE_KEY])
       .map(k => parseInt(k))
-      .every(n => !Number.isNaN(n)); 
+      .every(n => !Number.isNaN(n));
     const hasProperRecords = Object.values(data[APP_STORAGE_KEY]).every(record => {
-      return 'id' in record 
+      return 'id' in record
           && 'name' in record
           && 'timestamp' in record
           && 'squares' in record;
@@ -145,13 +145,13 @@
 
     colorClone.classList.remove('symbol-mode');
     colorClone.classList.add('color-mode');
-    colorClone.classList.add('html2pdf__page-break');       
+    colorClone.classList.add('html2pdf__page-break');
 
     const symbolClone = pegboardContainer.cloneNode(true);
 
     symbolClone.classList.remove('color-mode');
     symbolClone.classList.add('symbol-mode');
-    symbolClone.classList.add('html2pdf__page-break');       
+    symbolClone.classList.add('html2pdf__page-break');
 
     const container = document.createElement('div');
     container.classList.add('print-container');
