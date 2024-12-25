@@ -1,50 +1,84 @@
 (function Pegboard() {
 
-  // config values
+  // static config values
   const APP_STORAGE_KEY = 'pegboard';
   const DEFAULT_PEGBOARD_ID =  1;
 
- // app state
+  const colorNames = [
+      'white',
+      'red',
+      'yellow',
+      'green',
+      'blue',
+    ];
+
+    // SYMBOLS
+    const SYMBOLS = [
+      '&#9651;',
+      '&#x25BD;',
+      '&#x25A1;',
+      '&#x25CB;',
+      '&#x25CF;',
+    ];
+
+    const keyData = colorNames.reduce((memo, colorName, index) => {
+
+      if (!memo['colorToSymbol']) {
+        memo['colorToSymbol'] = {};
+      }
+      memo['colorToSymbol'][colorName] = SYMBOLS[index];
+      if (!memo['symbolToColor']) {
+        memo['symbolToColor'] = {};
+      }
+      memo['symbolToColor'][SYMBOLS[index]] = colorName;
+
+      return memo;
+
+    }, {});
+
+  // app state
   let activeColor = null;
   let activeSymbol = null;
   let currentPegboard = null;
   let viewMode = 'color'; // color | symbol
 
+  // important ui elements
   const pegboardAppContainer = document.querySelector('.pegboard-app');
   const pegboardContainer = document.querySelector('.pegboard-container');
-  // template
-  const templateGrid = document.querySelector('.template-grid');
-  const templateGridSquares = templateGrid.querySelectorAll('.grid-square');
-
-  // key colors
-  const colorKeyGrid = document.querySelector('.color-key-grid');
-  const allColorSquares = colorKeyGrid.querySelectorAll('.color-key-grid-square');
-  const colorNames = [
-    'white',
-    'red',
-    'yellow',
-    'green',
-    'blue',
-  ];
-
-  // key symbols
-  const symbolKeyGrid = document.querySelector('.symbol-key-grid');
-  const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-grid-square');
+  const templateGrid = document.querySelector('.pegboard');
+  const templateGridSquares = templateGrid.querySelectorAll('.pegboard-square');
+  const colorKeyGrid = document.querySelector('.color-key');
+  const allColorSquares = colorKeyGrid.querySelectorAll('.color-key-square');
+  const symbolKeyGrid = document.querySelector('.symbol-key');
+  const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-square');
   const loadButton = document.getElementById('load-button');
-
-  // pegboard controls
   const pegboardSelect = document.getElementById('pegboard-select')
   const pegboardSelectDefaultOption = document.getElementById('pegboard-select-default')
   const pegboardNameInput = document.getElementById('pegboard-name-input');
   const newPegboardButton = document.getElementById('new-pegboard');
+  const clearPegboardButton = document.getElementById('clear-pegboard');
   const saveButton = document.getElementById('save-button');
-  const exportButton = document.getElementById('export-button');
+  const exportButton = document.getElementById('download-link');
   const importButton = document.getElementById('import-button');
   const fileInput = document.getElementById('file-input');
+  const viewModeSelector = document.querySelector('.view-mode-selector');
+  const menu = document.querySelector('.menu');
+
+ 
+  // initialize key symbols
+  SYMBOLS.forEach((unicodeValue, index) => {
+
+    const symbolKeyGridSquare = symbolKeyGridSquares[index];
+    symbolKeyGridSquare.innerHTML = unicodeValue;
+
+  });
 
 
-  // data import / export 
-  async function importFile(e) {
+ 
+  /*
+   * data import / export 
+   */
+  async function onFileSelect(e) {
 
     fileInput.click()
 
@@ -59,7 +93,7 @@
     if (!validatePegboardData(importedData)) {
       throw new Error('invalid import data!');
     }
-    importPegboardData(importedData);
+    importPegboardDatabase(importedData);
   }
 
   function validatePegboardData(data) {
@@ -83,11 +117,11 @@
 
   }
 
-  function openFileInput(e) {
+  function onImport(e) {
     fileInput.click();
   }
 
-  function triggerDownload(e) {
+  function onExport(e) {
     const exportData = {
       [APP_STORAGE_KEY]: loadAppFromLocalStorage()
     };
@@ -108,7 +142,6 @@
 
     const colorClone = pegboardContainer.cloneNode(true);
 
-    colorClone.classList.remove('color-mode');
     colorClone.classList.remove('symbol-mode');
     colorClone.classList.add('color-mode');
     colorClone.classList.add('html2pdf__page-break');       
@@ -116,7 +149,6 @@
     const symbolClone = pegboardContainer.cloneNode(true);
 
     symbolClone.classList.remove('color-mode');
-    symbolClone.classList.remove('symbol-mode');
     symbolClone.classList.add('symbol-mode');
     symbolClone.classList.add('html2pdf__page-break');       
 
@@ -136,50 +168,6 @@
 
   }
 
-  function openPrintWindow() {
-
-    window.open(`?print=true&mode=${viewMode}`);
-
-  }
-
-  // SYMBOLS
-  const SYMBOLS = [
-    '&#9651;',
-    '&#x25BD;',
-    '&#x25A1;',
-    '&#x25CB;',
-    '&#x25CF;',
-  ];
-
-  const keyData = colorNames.reduce((memo, colorName, index) => {
-
-    if (!memo['colorToSymbol']) {
-      memo['colorToSymbol'] = {};
-    }
-    memo['colorToSymbol'][colorName] = SYMBOLS[index];
-    if (!memo['symbolToColor']) {
-      memo['symbolToColor'] = {};
-    }
-    memo['symbolToColor'][SYMBOLS[index]] = colorName;
-
-    return memo;
-
-  }, {});
-
-  // initialize key symbols
-  SYMBOLS.forEach((unicodeValue, index) => {
-
-    const symbolKeyGridSquare = symbolKeyGridSquares[index];
-    symbolKeyGridSquare.innerHTML = unicodeValue;
-
-  });
-
-  // pegboard mode: either 'color-mode' or 'symbol-mode'
-  // initialied in html w/ 'color-mode'
-  const viewModeSelector = document.querySelector('.view-mode-selector');
-
-  // menu, nav and views
-  const menu = document.querySelector('.menu');
  
   /*
    * Storage Functions
@@ -216,12 +204,18 @@
 
   }
   
-  function importPegboardData(data) {
-    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(data[APP_STORAGE_KEY]));
+  function importPegboardDatabase(data) {
+
+    localStorage.setItem(
+      APP_STORAGE_KEY,
+      JSON.stringify(data[APP_STORAGE_KEY])
+    );
+
     initApp();
+
   }
 
-  function loadPegboard(pegboardId) {
+  function loadPegboardById(pegboardId) {
 
     const appData = loadAppFromLocalStorage();
     const newPegboard = appData[pegboardId]; 
@@ -234,7 +228,7 @@
     return loadAppFromLocalStorage();
   }
 
-  function save() {
+  function savePegboard(pegboard) {
 
     // persist a sparse map of grid state.
     const squares = [...templateGridSquares].reduce((o, el, index) => {
@@ -251,16 +245,11 @@
     }, {});
 
     const record = PegboardRecord({
-      id: currentPegboard.id,
-      name: currentPegboard.name,
+      id: pegboard.id,
+      name: pegboard.name,
       squares,
       timestamp: new Date() / 1000
     });
-
-    savePegboard(record);
-  }
-
-  function savePegboard(record) {
 
     const currentAppData = loadAppFromLocalStorage();
     let newAppData;
@@ -326,20 +315,9 @@
   function changePegboardName(e) {
 
     currentPegboard.name = e.target.value;
-    save();
+    savePegboard(currentPegboard);
     const allPegboards = loadAllPegboards();
     initPegboardSelect(allPegboards, currentPegboard);
-
-  }
-
-  // print mode
-  function setPrintMode(inPrintMode) {
-
-    if (!inPrintMode) {
-      return;
-    }
-
-    pegboardAppContainer.classList.toggle('print-view', inPrintMode);
 
   }
 
@@ -382,34 +360,41 @@
   }
 
   // when a color palette item is clicked, highlight and set to active color
-  function selectColorAndSymbol(e) {
+  function onKeyClick(e) {
 
-    if (!e.target.classList.contains('color-key-grid-square')) {
+    if (!e.target.classList.contains('color-key-square')) {
       return;
     }
 
     const colorId = e.target.id;
-    const colorSquare = document.querySelector(`.color-key-grid-square#${colorId}`)
+
+    setActiveColor(colorId);
+
+  }
+
+  function setActiveColor(color) {
+
+    const colorSquare = document.querySelector(`.color-key-square#${color}`)
 
     // deactivate old color
     if (activeColor) {
       document.getElementById(`${activeColor}`).classList.toggle('active');
     }
 
-    activeColor = colorId;
+    activeColor = color;
 
     // activate new color
     colorSquare.classList.add('active');
-    activeSymbol = keyData.colorToSymbol[colorId];
+    activeSymbol = keyData.colorToSymbol[color];
 
   }
 
 
   // when a pegboard square is clicked, update w/ active color selection
   // and corresponding symbol
-  function updatePegboardSquare(e) {
+  function onPegboardClick(e) {
 
-    if (!e.target.classList.contains('grid-square')) {
+    if (!e.target.classList.contains('pegboard-square')) {
       return;
     }
 
@@ -433,7 +418,7 @@
       e.target.innerHTML = activeSymbol;
     }
 
-    save();
+    savePegboard(currentPegboard);
   }
 
 
@@ -441,7 +426,7 @@
   function switchPegboardById(e) {
 
     const pegboardId = e.target.value;
-    currentPegboard = loadPegboard(pegboardId)
+    currentPegboard = loadPegboardById(pegboardId)
 
     initPegboardSquares(currentPegboard);
 
@@ -470,7 +455,8 @@
     const latestRecord = sortedKeys.slice(-1)[0];
 
     const newPegboard = PegboardRecord({
-      id: latestRecord + 1
+      id: latestRecord + 1,
+      name: `${currentPegboard.name} copy`
     });
     const appData = savePegboard(newPegboard);
 
@@ -482,23 +468,22 @@
 
   }
 
-
   /*
    * bind events 
    *
    */
 
-  colorKeyGrid.addEventListener('click', selectColorAndSymbol);
-  templateGrid.addEventListener('click', updatePegboardSquare)
+  colorKeyGrid.addEventListener('click', onKeyClick);
+  templateGrid.addEventListener('click', onPegboardClick)
   pegboardNameInput.addEventListener('change', changePegboardName);
   pegboardSelect.addEventListener('change', switchPegboardById);
-  viewModeSelector.addEventListener('change', onViewModeChange); 
   newPegboardButton.addEventListener('click', createNewPegboard);
-  //printButton.addEventListener('click', openPrintWindow);
+
+  viewModeSelector.addEventListener('change', onViewModeChange); 
   saveButton.addEventListener('click', onSave);
-  exportButton.addEventListener('click', triggerDownload);
-  importButton.addEventListener('click', openFileInput);
-  fileInput.addEventListener('change', importFile);
+  exportButton.addEventListener('click', onExport);
+  importButton.addEventListener('click', onImport);
+  fileInput.addEventListener('change', onFileSelect);
 
   function findLastTouched(appData) {
 
@@ -516,21 +501,17 @@
 
     const appData = loadAppFromLocalStorage() || initStorage();
 
-    const searchParams = new URLSearchParams(document.location.search);
-    const inPrintMode = searchParams.has('print');
-    viewMode = searchParams.get('mode') || 'color';
-
-
     currentPegboard = findLastTouched(appData);
     pegboardNameInput.value = currentPegboard.name;
 
     initPegboardSquares(currentPegboard);
     initPegboardSelect(appData, currentPegboard);
 
-    setPrintMode(inPrintMode);
+    setActiveColor('red');
     setViewMode(viewMode);
 
   }
 
   initApp();
+
 })();
