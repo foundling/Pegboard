@@ -1,8 +1,8 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <title>MIND Lab: Pegboard Generator</title>
-    <link rel="stylesheet" href="style.css"></link>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <div class="pegboard-app">
@@ -11,161 +11,164 @@
             <label for="pegboard-select">Pegboards: </label>
             <select name="pegboard" id="pegboard-select"></select>
             <button id="new-pegboard">new pegboard</button>
+            <button id="clear-pegboard">clear pegboard</button>
           </div>
           <div>
             <button id="save-button">save</button>
             <button id="import-button">import data</button>
-            <input type="file" id="file-input" accept="application/json"/>
-            <button id="export-button">
-              <a id="download-link"
-                 download="pegboard-download.json">export data
-              </a>
+            <input type="file" id="file-input" accept="application/json">
+            <button>
+            <a id="download-link"
+               download="pegboard-download.json">export data
+            </a>
             </button>
           </div>
       </div>
 
-        <div class="view-mode-selector">
-            <label>View:</label>
-            <input
-              type="radio"
-              name="pegboard-mode-selector"
-              value="color"
-              checked>color</input>
-            <input
-              type="radio"
-              name="pegboard-mode-selector"
-              value="symbol">symbol</input>
+      <div class="view-mode-selector">
+          <label>View:</label>
+          <input
+            type="radio"
+            name="pegboard-mode-selector"
+            value="color"
+            checked>color
+          <input
+            type="radio"
+            name="pegboard-mode-selector"
+            value="symbol">symbol
+      </div>
+
+      <div class="pegboard-name">
+        <label for="pegboard-name-input">Name:</label>
+        <input type="text" id="pegboard-name-input">
+      </div>
+
+      <div class="pegboard-container">
+        <div class="pegboard">
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
+          <div class="pegboard-square"></div>
         </div>
 
-        <div class="pegboard-name">
-          <label for="pegboard-name-input">Name:</label>
-          <input type="text" id="pegboard-name-input" />
-        </div>
-        <div class="pegboard-container">
-          <div class="template-grid">
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-            <div class="grid-square"></div>
-          </div>
-          <div class="pegboard-key-container">
-            <h2 class="pegboard-key-title">Key</h2>
-            <div class="pegboard-key-content">
-              <div class="symbol-key-grid">
-                <div id="symbol-1" class="symbol-key-grid-square"></div>
-                <div id="symbol-2" class="symbol-key-grid-square"></div>
-                <div id="symbol-3" class="symbol-key-grid-square"></div>
-                <div id="symbol-4" class="symbol-key-grid-square"></div>
-                <div id="symbol-5" class="symbol-key-grid-square"></div>
-              </div>
-              <div class="color-key-grid">
-                <div id="white" class="color-key-grid-square"></div>
-                <div id="red" class="color-key-grid-square"></div>
-                <div id="yellow" class="color-key-grid-square"></div>
-                <div id="green" class="color-key-grid-square"></div>
-                <div id="blue" class="color-key-grid-square"></div>
-              </div>
+        <div class="pegboard-key-container">
+          <h2 class="pegboard-key-title">Key</h2>
+          <div class="pegboard-key-content">
+            <div class="symbol-key">
+              <div id="symbol-1" class="symbol-key-square"></div>
+              <div id="symbol-2" class="symbol-key-square"></div>
+              <div id="symbol-3" class="symbol-key-square"></div>
+              <div id="symbol-4" class="symbol-key-square"></div>
+              <div id="symbol-5" class="symbol-key-square"></div>
+            </div>
+            <div class="color-key">
+              <div id="white"  class="color-key-square"></div>
+              <div id="red"    class="color-key-square"></div>
+              <div id="yellow" class="color-key-square"></div>
+              <div id="green"  class="color-key-square"></div>
+              <div id="blue"   class="color-key-square"></div>
             </div>
           </div>
         </div>
       </div>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-    <script src="index.js" type="text/javascript"></script>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <script src="index.js"></script>
   </body>
 </html>

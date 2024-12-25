@@ -49,53 +49,60 @@ html, body * {
   flex-direction: row;
 }
 
-.template-grid {
-  background: lightgray;
+.pegboard {
+  background: rgb(206 206 206);
   display: grid;
   grid-template-columns: repeat(10, 30px);
   grid-template-rows: repeat(10, 30px);
 }
 
-.pegboard-container.color-mode .grid-square {
+.pegboard-container.color-mode .pegboard-square {
   color: transparent;
 }
 
-.pegboard-container.symbol-mode .grid-square {
-  background: white;
+.pegboard {
+  background: lightgray;
 }
 
+.pegboard-container.symbol-mode .pegboard-square {
+  background: transparent;
+}
 
-.symbol-key-grid {
+.symbol-key {
   display: grid;
   grid-template-rows: repeat(5, 30px);
   grid-template-columns: repeat(1, 30px);
 }
 
-.color-key-grid {
+.color-key {
   display: grid;
   grid-template-rows: repeat(5, 30px);
   grid-template-columns: repeat(1, 30px);
 }
 
-.template-grid,
-.color-key-grid {
+.pegboard,
+.color-key {
   border-top: 1px solid black;
   border-left: 1px solid black;
   border-bottom: 1px solid black;
   border-right: 1px solid black;
 }
 
-.grid-square,
-.color-key-grid-square,
-.symbol-key-grid-square {
+.pegboard-square,
+.color-key-square,
+.symbol-key-square {
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid black;
+}
+
+.color-key-square,
+.symbol-key-square {
   background-color: white;
 }
 
-.symbol-key-grid-square {
+.symbol-key-square {
   border: 1px solid white;
   display: flex;
   flex-direction: column;
@@ -103,34 +110,33 @@ html, body * {
   align-items: center;
 }
 
-.color-key-grid-square.active {
+.color-key-square.active {
   border: 3px dotted black;
 }
 
-.color-key-grid-square#white {
+.color-key-square#white {
   background-color: white;
 }
 
-.color-key-grid-square#red {
+.color-key-square#red {
   background-color: rgb(255,3,27);
 }
 
-.color-key-grid-square#yellow {
+.color-key-square#yellow {
   background-color: rgb(255,184,44);
 }
 
-.color-key-grid-square#green {
+.color-key-square#green {
   background-color: rgb(0,166,76);
 }
 
-.color-key-grid-square#blue {
+.color-key-square#blue {
   background-color: rgb(0,85,117);
 }
 
-.color-white {
-  background-color: white;
+[data-color="white"] {
+  background-color: rgb(255 255 255);
 }
-
 [data-color="blue"] {
   background-color: rgb(0,85,117);
 }
@@ -183,4 +189,9 @@ html, body * {
 .print-container > .pegboard-container {
   zoom: 1.2;
   margin: 200px 130px 0px 150px; 
+}
+
+#download-link {
+  text-decoration: none;
+  color: black;
 }
