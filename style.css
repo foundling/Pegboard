@@ -163,7 +163,6 @@ html, body * {
 }
 
 #save-button {
-  margin-left: 20px;
 }
 
 .print-view > :not(.pegboard-container) {
@@ -195,3 +194,5 @@ html, body * {
   text-decoration: none;
   color: black;
 }
+
+@media(max-width: 600) {

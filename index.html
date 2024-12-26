@@ -3,18 +3,15 @@
   <head>
     <title>MIND Lab: Pegboard Generator</title>
     <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
   </head>
   <body>
     <div class="pegboard-app">
       <div class="menu">
-          <div class="pegboard-list">
-            <label for="pegboard-select">Pegboards: </label>
-            <select name="pegboard" id="pegboard-select"><option value="">default pegboard</option></select>
+          <div class="pegboard-actions">
             <button id="new-pegboard">new pegboard</button>
             <button id="clear-pegboard">clear pegboard</button>
             <button id="copy-pegboard">copy pegboard</button>
-          </div>
-          <div>
             <button id="save-button">save</button>
             <button id="import-button">import data</button>
             <input type="file" id="file-input" accept="application/json">
@@ -23,6 +20,10 @@
                download="pegboard-download.json">export data
             </a>
             </button>
+          </div>
+          <div class="pegboard-list">
+            <label for="pegboard-select">Pegboards: </label>
+            <select name="pegboard" id="pegboard-select"><option value="">default pegboard</option></select>
           </div>
       </div>
 
