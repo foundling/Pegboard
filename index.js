@@ -243,12 +243,11 @@
    * Storage Functions
    */
 
-  function PegboardRecord({ id=1, name='new pegboard', squares=[] }) {
+  function PegboardRecord({ id=1, name='new pegboard', squares={}, timestamp=Date.now() }) {
     return {
       id,
       name,
-      squares,
-      timestamp: new Date() / 1000
+      squares
     };
   }
 
@@ -270,7 +269,6 @@
       id: DEFAULT_PEGBOARD_ID,
       name: 'new pegboard',
       squares: {},
-      timestamp: new Date() / 1000
     })
 
     return savePegboard(record);
@@ -330,6 +328,7 @@
 
   function savePegboard(pegboardRecord) {
 
+    pegboardRecord.timestamp = Date.now();
     const currentAppData = loadAppFromLocalStorage();
     let newAppData;
 
