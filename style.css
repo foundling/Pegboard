@@ -34,13 +34,19 @@ html, body * {
 }
 
 .pegboard-key-container {
-  margin-left: 100px;
-  margin-top: 80px;
   display: flex; 
   flex-direction: column;
+  margin-left: 20px;
+}
+
+.symbol-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
 .pegboard-key-title {
+  font-size: 1em;
   text-align: center;
 }
 
@@ -205,4 +211,16 @@ html, body * {
   -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+.symbol-list {
+  display: grid;
+  grid-template-columns: repeat(5, 20px);
+  grid-template-rows: repeat(5, 20px);
+}
+
+.symbol-list > li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

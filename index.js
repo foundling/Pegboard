@@ -12,8 +12,11 @@
       'blue',
     ];
 
-  // SYMBOLS
-  const SYMBOLS = [
+  const symbolList = [
+  ];
+
+  const symbols = [
+    '&#x25BC;',
     '&#9651;',
     '&#x25BD;',
     '&#x25A1;',
@@ -26,11 +29,11 @@
     if (!memo['colorToSymbol']) {
       memo['colorToSymbol'] = {};
     }
-    memo['colorToSymbol'][colorName] = SYMBOLS[index];
+    memo['colorToSymbol'][colorName] = symbols[index];
     if (!memo['symbolToColor']) {
       memo['symbolToColor'] = {};
     }
-    memo['symbolToColor'][SYMBOLS[index]] = colorName;
+    memo['symbolToColor'][symbols[index]] = colorName;
 
     return memo;
 
@@ -79,7 +82,7 @@
 
 
     // initialize key symbols
-    SYMBOLS.forEach((unicodeValue, index) => {
+    symbols.forEach((unicodeValue, index) => {
 
       const symbolKeySquare = symbolKeySquares[index];
       symbolKeySquare.innerHTML = unicodeValue;
