@@ -12,16 +12,32 @@
       'blue',
     ];
 
-  const symbolList = [
-  ];
-
   const symbols = [
-    '&#x25BC;',
-    '&#9651;',
-    '&#x25BD;',
-    '&#x25A1;',
-    '&#x25CB;',
-    '&#x25CF;',
+     '&#9722;',
+     '&#8679;',
+     '&#9672;',
+     '&#9826;',
+     '&#9873;',
+     '&#9726;',
+     '&#126;',
+     '&#35;',
+     '&#9711;',
+     '&#61;',
+     '&#33;',
+     '&#8258;',
+     '&#8251;',
+     '&#8864;',
+     '&#8896;',
+     '&#9885;',
+     '&#10047;',
+     '&#8857;',
+     '&#8709;',
+     '&#9635;',
+     '&#9547;',
+     '&#9214;',
+     '&#8681;',
+     '&#9680;',
+     '&#9650;'
   ];
 
   const keyData = colorNames.reduce((memo, colorName, index) => {
@@ -54,6 +70,7 @@
   const colorKey = document.querySelector('.color-key');
   const symbolKey = document.querySelector('.symbol-key');
   const symbolKeySquares = symbolKey.querySelectorAll('.symbol-key-square');
+  const symbolList = document.getElementById('symbol-list');
 
 
   // Menu + Pegboard Controls  UI 
@@ -82,7 +99,7 @@
 
 
     // initialize key symbols
-    symbols.forEach((unicodeValue, index) => {
+    symbols.slice(0,5).forEach((unicodeValue, index) => {
 
       const symbolKeySquare = symbolKeySquares[index];
       symbolKeySquare.innerHTML = unicodeValue;
@@ -94,6 +111,7 @@
 
     initPegboardSquares(currentPegboard);
     initPegboardSelect(appData, currentPegboard);
+    initSymbolList(symbolList, symbols);
 
     setActiveColor('red');
     setViewMode(viewMode);
@@ -355,6 +373,14 @@
   }
 
 
+  function initSymbolList(symbolList, symbols) {
+
+    const symbolGridMarkup = symbols.map(symbol => `
+      <li>${symbol}</li>
+    `).join('');
+    symbolList.insertAdjacentHTML('beforeend', symbolGridMarkup);
+  }
+
   function initPegboardSquares(record) {
 
     pegboardSquares.forEach((el, index) => {
@@ -384,8 +410,6 @@
     });
 
   }
-
-
 
 
   /*

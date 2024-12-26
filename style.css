@@ -39,7 +39,7 @@ html, body * {
   margin-left: 20px;
 }
 
-.symbol-list {
+#symbol-list {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -167,9 +167,11 @@ html, body * {
   padding-right: 20px;
 }
 
-.print-view > :not(.pegboard-container) {
+.print-view > :not(.pegboard-container),
+#symbol-list {
   display: none;
 }
+
 
 .print-view {
   zoom: 1.5;
@@ -213,13 +215,13 @@ html, body * {
   user-select: none;
 }
 
-.symbol-list {
+#symbol-list {
   display: grid;
   grid-template-columns: repeat(5, 20px);
   grid-template-rows: repeat(5, 20px);
 }
 
-.symbol-list > li {
+#symbol-list > li {
   display: flex;
   align-items: center;
   justify-content: center;
