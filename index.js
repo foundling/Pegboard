@@ -1,8 +1,5 @@
 (function Pegboard() {
 
-  // TODO
-  console.log('BUG: name field change propagates nonsense to pegboard selector')
-
   // static config values
   const APP_STORAGE_KEY = 'pegboard';
   const DEFAULT_PEGBOARD_ID =  1;
@@ -162,8 +159,11 @@
     if (!validatePegboardData(importedData)) {
       throw new Error('invalid import data!');
     }
+
     importPegboardDatabase(importedData);
+
   }
+
 
   function validatePegboardData(data) {
 
@@ -171,6 +171,7 @@
     const hasPegboardIndexKeys = Object.keys(data[APP_STORAGE_KEY])
       .map(k => parseInt(k))
       .every(n => !Number.isNaN(n));
+
     const hasProperRecords = Object.values(data[APP_STORAGE_KEY]).every(record => {
       return 'id' in record
           && 'name' in record
@@ -182,7 +183,7 @@
     if (!hasPegboardIndexKeys) return { result: false, msg: 'bad index keys' }
     if (!hasProperRecords) return { result: false, msg:  'bad records' }
 
-    return { result: true } ;
+    return { result: true };
 
   }
 
@@ -389,22 +390,6 @@
    * UI Functions
    * TODO: put on[FuncName] handlers here.
    */
-
-  function onInputChange(e) {
-    changePegboardName(currentPegboard, e.target.value);
-  }
-
-  function changePegboardName(currentPegboard, newName) {
-
-    const allPegboards = loadAllPegboards();
-
-    currentPegboard.name = newName;
-    savePegboard(currentPegboard);
-
-    initPegboardSelect(allPegboards, currentPegboard);
-
-  }
-
   // toggle color / symbol view mode.
 
   function onViewModeChange(e) {
@@ -492,6 +477,23 @@
   }
 
 
+  function onPegboardNameChange(e) {
+    changePegboardName(currentPegboard, e.target.value);
+  }
+
+  function changePegboardName(currentPegboard, newName) {
+
+
+    currentPegboard.name = newName;
+    savePegboard(currentPegboard);
+
+    const allPegboards = loadAllPegboards();
+
+    initPegboardSelect(allPegboards, currentPegboard);
+
+  }
+
+
   function onPegboardSelectChange(e) {
 
     switchPegboard(e.target.value);
@@ -571,7 +573,7 @@
    */
 
   colorKey.addEventListener('click', onKeyClick);
-  pegboardNameInput.addEventListener('change', onInputChange);
+  pegboardNameInput.addEventListener('change', onPegboardNameChange);
   pegboardSelect.addEventListener('change', onPegboardSelectChange);
   viewModeSelector.addEventListener('change', onViewModeChange); 
   saveButton.addEventListener('click', onSave);
