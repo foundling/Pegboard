@@ -1,5 +1,8 @@
 (function Pegboard() {
 
+  // TODO
+  console.log('BUG: name field change propagates nonsense to pegboard selector')
+
   // static config values
   const APP_STORAGE_KEY = 'pegboard';
   const DEFAULT_PEGBOARD_ID =  1;
@@ -41,19 +44,21 @@
   let activeSymbol = null;
   let currentPegboard = null;
   let viewMode = 'color'; // color | symbol
+  let mouseDown = false;
 
-  // important ui elements
+  // Pegboard and Key UI
   const pegboardAppContainer = document.querySelector('.pegboard-app');
   const pegboardContainer = document.querySelector('.pegboard-container');
-  const templateGrid = document.querySelector('.pegboard');
-  const pegboardSquares = templateGrid.querySelectorAll('.pegboard-square');
-  const colorKeyGrid = document.querySelector('.color-key');
-  const allColorSquares = colorKeyGrid.querySelectorAll('.color-key-square');
-  const symbolKeyGrid = document.querySelector('.symbol-key');
-  const symbolKeyGridSquares = symbolKeyGrid.querySelectorAll('.symbol-key-square');
+  const pegboard = document.querySelector('.pegboard');
+  const pegboardSquares = pegboard.querySelectorAll('.pegboard-square');
+  const colorKey = document.querySelector('.color-key');
+  const symbolKey = document.querySelector('.symbol-key');
+  const symbolKeySquares = symbolKey.querySelectorAll('.symbol-key-square');
+
+
+  // Menu + Pegboard Controls  UI 
   const loadButton = document.getElementById('load-button');
   const pegboardSelect = document.getElementById('pegboard-select')
-  const pegboardSelectDefaultOption = document.getElementById('pegboard-select-default')
   const pegboardNameInput = document.getElementById('pegboard-name-input');
   const newPegboardButton = document.getElementById('new-pegboard');
   const clearPegboardButton = document.getElementById('clear-pegboard');
@@ -63,18 +68,81 @@
   const importButton = document.getElementById('import-button');
   const fileInput = document.getElementById('file-input');
   const viewModeSelector = document.querySelector('.view-mode-selector');
-  const menu = document.querySelector('.menu');
 
 
-  // initialize key symbols
-  SYMBOLS.forEach((unicodeValue, index) => {
 
-    const symbolKeyGridSquare = symbolKeyGridSquares[index];
-    symbolKeyGridSquare.innerHTML = unicodeValue;
+  /*
+   *
+   * app initialization
+   *
+   */
+  function initApp() {
 
-  });
+    const appData = loadAppFromLocalStorage() || initStorage();
 
 
+    // initialize key symbols
+    SYMBOLS.forEach((unicodeValue, index) => {
+
+      const symbolKeySquare = symbolKeySquares[index];
+      symbolKeySquare.innerHTML = unicodeValue;
+
+    });
+
+    currentPegboard = findLastTouched(appData);
+    pegboardNameInput.value = currentPegboard.name;
+
+    initPegboardSquares(currentPegboard);
+    initPegboardSelect(appData, currentPegboard);
+
+    setActiveColor('red');
+    setViewMode(viewMode);
+
+  }
+
+
+  /* 
+   * pegboard selection ui logic
+   *
+   */ 
+
+  function onMouseDown(e) {
+
+    const isPegboardSquare = e.target.classList.contains('pegboard-square');
+
+    if (!isPegboardSquare) {
+      return;
+    }
+
+    mouseDown = true;
+    togglePegboardSquare(e.target, activeColor, activeSymbol);
+  }
+
+
+  function onMouseOver(e) {
+
+    const isPegboardSquare = e.target.classList.contains('pegboard-square');
+
+    if (!(isPegboardSquare && mouseDown)) {
+      return;
+    }
+
+    togglePegboardSquare(e.target, activeColor, activeSymbol);
+
+  }
+
+
+  function onMouseUp(e) {
+
+    mouseDown = false;
+
+    // persist a sparse map of grid state.
+    const squares = getSquareDataFromPegboard(pegboardSquares);
+    currentPegboard.squares = squares;
+
+    savePegboard(currentPegboard);
+
+  }
 
   /*
    * data import / export
@@ -183,6 +251,18 @@
     };
   }
 
+  function findLastTouched(appData) {
+
+    const records = Object.values(appData);
+    if (records.length === 1) {
+      return records[0];
+    } else {
+      return records.sort((e1, e2) => e2.timestamp - e1.timestamp)[0]
+    }
+
+  }
+
+
   function initStorage() {
 
     const record = PegboardRecord({
@@ -231,7 +311,7 @@
 
   function getSquareDataFromPegboard(pegboardSquareElements) {
 
-    // persist a sparse map of grid state.
+    // storage record's .squares is a sparse map of the pegboard state.
     return [...pegboardSquareElements].reduce((o, el, index) => {
 
       const color = el.dataset.color;
@@ -248,15 +328,6 @@
   }
 
   function savePegboard(pegboardRecord) {
-
-    /*
-    const record = PegboardRecord({
-      id: pegboard.id,
-      name: pegboard.name,
-      squares,
-      timestamp: new Date() / 1000
-    });
-    */
 
     const currentAppData = loadAppFromLocalStorage();
     let newAppData;
@@ -316,14 +387,20 @@
 
   /*
    * UI Functions
+   * TODO: put on[FuncName] handlers here.
    */
 
-  // update pegboard input name
-  function changePegboardName(e) {
+  function onInputChange(e) {
+    changePegboardName(currentPegboard, e.target.value);
+  }
 
-    currentPegboard.name = e.target.value;
-    savePegboard(currentPegboard);
+  function changePegboardName(currentPegboard, newName) {
+
     const allPegboards = loadAllPegboards();
+
+    currentPegboard.name = newName;
+    savePegboard(currentPegboard);
+
     initPegboardSelect(allPegboards, currentPegboard);
 
   }
@@ -354,7 +431,6 @@
   }
 
 
-  // View-specific functions
   function populatePegboardList(ids) {
     const listMarkup = ids.map(id => `
       <li>${id}</li>
@@ -366,7 +442,6 @@
     pegboardList.insertAdjacentHTML('beforeend', listMarkup);
   }
 
-  // when a color palette item is clicked, highlight and set to active color
   function onKeyClick(e) {
 
     if (!e.target.classList.contains('color-key-square')) {
@@ -379,8 +454,10 @@
 
   }
 
+  // when a color palette item is clicked, highlight and set to active color
   function setActiveColor(color) {
 
+    // TODO: can u just look by id?
     const colorSquare = document.querySelector(`.color-key-square#${color}`)
 
     // deactivate old color
@@ -396,51 +473,35 @@
 
   }
 
-
-  // when a pegboard square is clicked, update w/ active color selection
-  // and corresponding symbol
-  function onPegboardClick(e) {
-
-    if (!e.target.classList.contains('pegboard-square')) {
-      return;
-    }
-
-    // TODO: add some UI indication that you need to select a color.
-    if (activeColor === null) {
-      return;
-    }
-
+  function togglePegboardSquare(element, activeColor, activeSymbol) {
 
     // untoggle square
-    if (e.target.dataset.color === activeColor && e.target.dataset.symbol === activeSymbol) {
+    if (element.dataset.color === activeColor && element.dataset.symbol === activeSymbol) {
 
-      delete e.target.dataset.color;
-      delete e.target.dataset.symbol;
-      e.target.innerHTML = '';
+      delete element.dataset.color;
+      delete element.dataset.symbol;
+      element.innerHTML = '';
 
     } else {
       // set square 
-      e.target.dataset.color = activeColor;
-      e.target.dataset.symbol = activeSymbol;
-      e.target.innerHTML = activeSymbol;
+      element.dataset.color = activeColor;
+      element.dataset.symbol = activeSymbol;
+      element.innerHTML = activeSymbol;
     }
 
-    // persist a sparse map of grid state.
-    const squares = getSquareDataFromPegboard(pegboardSquares);
-    currentPegboard.squares = squares;
-
-    savePegboard(currentPegboard);
   }
 
 
+  function onPegboardSelectChange(e) {
 
-  function switchPegboardById(e) {
+    switchPegboard(e.target.value);
 
-    const pegboardId = e.target.value;
+  }
+
+  function switchPegboard(pegboardId) {
+
     currentPegboard = loadPegboardById(pegboardId)
-
     initPegboardSquares(currentPegboard);
-
     pegboardNameInput.value = currentPegboard.name;
 
   }
@@ -455,6 +516,7 @@
     while (pegboardSelect.lastChild) {
       pegboardSelect.removeChild(pegboardSelect.lastChild);
     }
+
     pegboardSelect.insertAdjacentHTML('beforeend', options);
 
   }
@@ -508,46 +570,21 @@
    *
    */
 
-  colorKeyGrid.addEventListener('click', onKeyClick);
-  templateGrid.addEventListener('click', onPegboardClick)
-  pegboardNameInput.addEventListener('change', changePegboardName);
-  pegboardSelect.addEventListener('change', switchPegboardById);
-  newPegboardButton.addEventListener('click', createNewPegboard);
-  clearPegboardButton.addEventListener('click', clearPegboard);
-  copyPegboardButton.addEventListener('click', copyPegboard);
-
+  colorKey.addEventListener('click', onKeyClick);
+  pegboardNameInput.addEventListener('change', onInputChange);
+  pegboardSelect.addEventListener('change', onPegboardSelectChange);
   viewModeSelector.addEventListener('change', onViewModeChange); 
   saveButton.addEventListener('click', onSave);
   exportButton.addEventListener('click', onExport);
   importButton.addEventListener('click', onImport);
   fileInput.addEventListener('change', onFileSelect);
+  pegboard.addEventListener('mousedown', onMouseDown);
+  pegboard.addEventListener('mouseup', onMouseUp);
+  pegboard.addEventListener('mouseover', onMouseOver);
 
-  function findLastTouched(appData) {
-
-    const records = Object.values(appData);
-    if (records.length === 1) {
-      return records[0];
-    } else {
-      return records.sort((e1, e2) => e2.timestamp - e1.timestamp)[0]
-    }
-
-  }
-
-  // app initialization
-  function initApp() {
-
-    const appData = loadAppFromLocalStorage() || initStorage();
-
-    currentPegboard = findLastTouched(appData);
-    pegboardNameInput.value = currentPegboard.name;
-
-    initPegboardSquares(currentPegboard);
-    initPegboardSelect(appData, currentPegboard);
-
-    setActiveColor('red');
-    setViewMode(viewMode);
-
-  }
+  newPegboardButton.addEventListener('click', createNewPegboard);
+  clearPegboardButton.addEventListener('click', clearPegboard);
+  copyPegboardButton.addEventListener('click', copyPegboard);
 
   initApp();
 

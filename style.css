@@ -154,15 +154,11 @@ html, body * {
 }
 
 .pegboard-name {
-  padding: 20px 0 20px 0;
   display: inline-flex;
 }
 
 .pegboard-name > label {
   padding-right: 20px;
-}
-
-#save-button {
 }
 
 .print-view > :not(.pegboard-container) {
@@ -173,12 +169,22 @@ html, body * {
   zoom: 1.5;
 }
 
-.pegboard-list, .view-mode-selector {
-  margin: 20px 0 20px 0;
+.pegboard-actions,
+.pegboard-list,
+.pegboard-name,
+.view-mode-selector {
+  padding: 10px 0;
 }
+
 #print-button > .print-button-link {
   text-decoration: none;
   color: black;
+}
+
+#pegboard-name-input {
+  border: none;
+  border-bottom: 1px solid black;
+  background: #efefef;
 }
 
 #file-input {
@@ -195,4 +201,8 @@ html, body * {
   color: black;
 }
 
-@media(max-width: 600) {
+.pegboard {
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
