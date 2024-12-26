@@ -36,13 +36,26 @@ html, body * {
 .pegboard-key-container {
   display: flex; 
   flex-direction: column;
-  margin-left: 20px;
 }
 
-.symbol-list {
+.pegboard-symbol-and-key-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+#symbol-library {
   list-style-type: none;
   margin: 0;
   padding: 0;
+}
+
+.symbol {
+  border: 1px solid lightgray;
+}
+.symbol.selected {
+  background: lightgray;
+  box-sizing: border-box;
 }
 
 .pegboard-key-title {
@@ -74,20 +87,14 @@ html, body * {
   background: transparent;
 }
 
-.symbol-key {
+.key {
   display: grid;
   grid-template-rows: repeat(5, 30px);
-  grid-template-columns: repeat(1, 30px);
-}
-
-.color-key {
-  display: grid;
-  grid-template-rows: repeat(5, 30px);
-  grid-template-columns: repeat(1, 30px);
+  grid-template-columns: repeat(2, 30px);
 }
 
 .pegboard,
-.color-key {
+.key {
   border-top: 1px solid black;
   border-left: 1px solid black;
   border-bottom: 1px solid black;
@@ -95,49 +102,68 @@ html, body * {
 }
 
 .pegboard-square,
-.color-key-square,
-.symbol-key-square {
+.key-color-square,
+.key-symbol-square {
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid black;
 }
 
-.color-key-square,
-.symbol-key-square {
-  background-color: white;
-}
-
-.symbol-key-square {
-  border: 1px solid white;
+.key-color-square {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-.color-key-square.active {
+.key-symbol-square.active,
+.key-color-square.active {
   border: 3px dotted black;
 }
 
-.color-key-square#white {
+#symbol-library > .symbol.active {
+  background: cyan;
+}
+
+#symbol-library > .symbol.selected.active {
+  background: yellow;
+}
+
+#white {
   background-color: white;
 }
 
-.color-key-square#red {
+#red {
   background-color: rgb(255,3,27);
 }
 
-.color-key-square#yellow {
+#yellow {
   background-color: rgb(255,184,44);
 }
 
-.color-key-square#green {
+#green {
   background-color: rgb(0,166,76);
 }
 
-.color-key-square#blue {
+#blue {
   background-color: rgb(0,85,117);
+}
+
+.key-color-square.white {
+  background-color: rgb(255 255 255);
+}
+.key-color-square.blue {
+  background-color: rgb(0,85,117);
+}
+.key-color-square.red {
+  background-color: rgb(255,3,27);
+}
+.key-color-square.yellow {
+  background-color: rgb(255,184,44);
+}
+.key-color-square.green {
+  background-color: rgb(0,166,76);
 }
 
 [data-color="white"] {
@@ -167,9 +193,11 @@ html, body * {
   padding-right: 20px;
 }
 
-.print-view > :not(.pegboard-container) {
+.print-view > :not(.pegboard-container),
+#symbol-library {
   display: none;
 }
+
 
 .print-view {
   zoom: 1.5;
@@ -207,19 +235,19 @@ html, body * {
   color: black;
 }
 
-.pegboard {
+.pegboard-container {
   -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
 }
 
-.symbol-list {
+#symbol-library {
   display: grid;
   grid-template-columns: repeat(5, 20px);
   grid-template-rows: repeat(5, 20px);
 }
 
-.symbol-list > li {
+#symbol-library > li {
   display: flex;
   align-items: center;
   justify-content: center;
