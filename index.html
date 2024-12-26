@@ -7,24 +7,23 @@
   </head>
   <body>
     <div class="pegboard-app">
-      <div class="menu">
-          <div class="pegboard-actions">
-            <button id="new-pegboard">new pegboard</button>
-            <button id="clear-pegboard">clear pegboard</button>
-            <button id="copy-pegboard">copy pegboard</button>
-            <button id="save-button">save</button>
-            <button id="import-button">import data</button>
-            <input type="file" id="file-input" accept="application/json">
-            <button>
-            <a id="download-link"
-               download="pegboard-download.json">export data
-            </a>
-            </button>
-          </div>
-          <div class="pegboard-list">
-            <label for="pegboard-select">Pegboards: </label>
-            <select name="pegboard" id="pegboard-select"><option value="">default pegboard</option></select>
-          </div>
+
+      <div class="pegboard-actions">
+        <button id="new-pegboard">new</button>
+        <button id="copy-pegboard">copy</button>
+        <button id="clear-pegboard">clear squares</button>
+        <button id="save-button">download</button>
+        <button id="import-button">import</button>
+        <input type="file" id="file-input" accept="application/json">
+        <button>
+        <a id="download-link"
+           download="pegboard-download.json">export
+        </a>
+        </button>
+      </div>
+      <div class="pegboard-list">
+        <label for="pegboard-select">Pegboards: </label>
+        <select name="pegboard" id="pegboard-select"></select>
       </div>
 
       <div class="view-mode-selector">
