@@ -39,7 +39,7 @@ html, body * {
   margin-left: 20px;
 }
 
-#symbol-list {
+#symbol-library {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -168,7 +168,7 @@ html, body * {
 }
 
 .print-view > :not(.pegboard-container),
-#symbol-list {
+#symbol-library {
   display: none;
 }
 
@@ -215,13 +215,13 @@ html, body * {
   user-select: none;
 }
 
-#symbol-list {
+#symbol-library {
   display: grid;
   grid-template-columns: repeat(5, 20px);
   grid-template-rows: repeat(5, 20px);
 }
 
-#symbol-list > li {
+#symbol-library > li {
   display: flex;
   align-items: center;
   justify-content: center;

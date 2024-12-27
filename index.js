@@ -12,7 +12,7 @@
       'blue',
     ];
 
-  const symbols = [
+  const symbolLibrary = [
      '&#9722;',
      '&#8679;',
      '&#9672;',
@@ -40,16 +40,18 @@
      '&#9650;'
   ];
 
+  let activeSymbols = symbolLibrary.slice(0,5); 
+
   const keyData = colorNames.reduce((memo, colorName, index) => {
 
     if (!memo['colorToSymbol']) {
       memo['colorToSymbol'] = {};
     }
-    memo['colorToSymbol'][colorName] = symbols[index];
+    memo['colorToSymbol'][colorName] = symbolLibrary[index];
     if (!memo['symbolToColor']) {
       memo['symbolToColor'] = {};
     }
-    memo['symbolToColor'][symbols[index]] = colorName;
+    memo['symbolToColor'][symbolLibrary[index]] = colorName;
 
     return memo;
 
@@ -70,7 +72,7 @@
   const colorKey = document.querySelector('.color-key');
   const symbolKey = document.querySelector('.symbol-key');
   const symbolKeySquares = symbolKey.querySelectorAll('.symbol-key-square');
-  const symbolList = document.getElementById('symbol-list');
+  const symbolLibraryEl = document.getElementById('symbol-library');
 
 
   // Menu + Pegboard Controls  UI 
@@ -88,6 +90,16 @@
 
 
 
+  function listFn(e) {
+
+    console.log(e.dataset);
+    if (e.target.className !== 'LI') {
+      return;
+    }
+
+
+  }
+
   /*
    *
    * app initialization
@@ -98,8 +110,8 @@
     const appData = loadAppFromLocalStorage() || initStorage();
 
 
-    // initialize key symbols
-    symbols.slice(0,5).forEach((unicodeValue, index) => {
+    // initialize key symbolLibrary
+    symbolLibrary.slice(0,5).forEach((unicodeValue, index) => {
 
       const symbolKeySquare = symbolKeySquares[index];
       symbolKeySquare.innerHTML = unicodeValue;
@@ -111,7 +123,7 @@
 
     initPegboardSquares(currentPegboard);
     initPegboardSelect(appData, currentPegboard);
-    initSymbolList(symbolList, symbols);
+    initSymbolLibrary(symbolLibraryEl, symbolLibrary);
 
     setActiveColor('red');
     setViewMode(viewMode);
@@ -374,14 +386,14 @@
   }
 
 
-  function initSymbolList(symbolList, symbols) {
+  function initSymbolLibrary(el, symbolLibrary) {
 
-    const symbolGridMarkup = symbols.map(symbol => `
-      <li>${symbol}</li>
+    const symbolGridMarkup = symbolLibrary.map(symbol => `
+      <li data-symbol="${symbol}">${symbol}</li>
     `).join('');
 
-    removeChildren(symbolList);
-    symbolList.insertAdjacentHTML('beforeend', symbolGridMarkup);
+    removeChildren(el);
+    el.insertAdjacentHTML('beforeend', symbolGridMarkup);
   }
 
   function initPegboardSquares(record) {
@@ -618,6 +630,7 @@
   pegboard.addEventListener('mousedown', onMouseDown);
   pegboard.addEventListener('mouseup', onMouseUp);
   document.body.addEventListener('mouseover', onMouseOver);
+  symbolLibraryEl.addEventListener('click', listFn);
 
   newPegboardButton.addEventListener('click', createNewPegboard);
   clearPegboardButton.addEventListener('click', clearPegboard);
