@@ -141,11 +141,12 @@
 
     const isPegboardSquare = e.target.classList.contains('pegboard-square');
 
-    if (!(isPegboardSquare && mouseDown)) {
-      return;
+    if (isPegboardSquare && mouseDown) {
+      togglePegboardSquare(e.target, activeColor, activeSymbol);
     }
-
-    togglePegboardSquare(e.target, activeColor, activeSymbol);
+    if (!isPegboardSquare && mouseDown) {
+      mouseDown = false;
+    }
 
   }
 
@@ -378,6 +379,8 @@
     const symbolGridMarkup = symbols.map(symbol => `
       <li>${symbol}</li>
     `).join('');
+
+    removeChildren(symbolList);
     symbolList.insertAdjacentHTML('beforeend', symbolGridMarkup);
   }
 
@@ -447,9 +450,7 @@
       <li>${id}</li>
     `);
 
-    while (pegboardList.hasChildNodes()) {
-      pegboardList.removeChild(pegboardList.lastChild);
-    }
+    removeChildren(pegboardList);
     pegboardList.insertAdjacentHTML('beforeend', listMarkup);
   }
 
@@ -541,10 +542,7 @@
       return `<option ${ selected ? 'selected' : '' } value="${id}">${pegboard.name}</option>`;
     }).join('');
 
-    while (pegboardSelect.lastChild) {
-      pegboardSelect.removeChild(pegboardSelect.lastChild);
-    }
-
+    removeChildren(pegboardSelect)
     pegboardSelect.insertAdjacentHTML('beforeend', options);
 
   }
@@ -594,6 +592,17 @@
   }
 
   /*
+   * utils
+   *
+   */
+
+  function removeChildren(node) {
+    while (node.lastChild) {
+      node.removeChild(node.lastChild);
+    }
+  }
+
+  /*
    * bind events 
    *
    */
@@ -608,7 +617,7 @@
   fileInput.addEventListener('change', onFileSelect);
   pegboard.addEventListener('mousedown', onMouseDown);
   pegboard.addEventListener('mouseup', onMouseUp);
-  pegboard.addEventListener('mouseover', onMouseOver);
+  document.body.addEventListener('mouseover', onMouseOver);
 
   newPegboardButton.addEventListener('click', createNewPegboard);
   clearPegboardButton.addEventListener('click', clearPegboard);
