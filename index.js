@@ -24,7 +24,8 @@
   const pegboard = document.querySelector('.pegboard');
   const pegboardSquares = pegboard.querySelectorAll('.pegboard-square');
   const pegboardKey = document.querySelector('.key');
-  const symbolKeySquares = pegboardKey.querySelectorAll('.key-symbol-square');
+  const keySymbolSquares = pegboardKey.querySelectorAll('.key-symbol-square');
+  const keyColorSquares = pegboardKey.querySelectorAll('.key-color-square');
   const symbolLibrary = document.getElementById('symbol-library');
 
 
@@ -59,18 +60,6 @@
 
     for (let i = 0; i < colors.length; ++i) {
 
-      /*
-      // each color maps to a symbol
-      // each of those mapped symbols maps back to a color 
-      let randIndex = Math.floor(Math.random() * 100) % symbols.length;
-
-      while (keyMap.s[randIndex] != null) {
-        randIndex = Math.floor(Math.random() * 100) % symbols.length;
-      }
-
-      keyMap.s[randIndex] = i;
-      keyMap.c[i] = randIndex;
-      */
       keyMap.s[i] = i;
       keyMap.c[i] = i;
 
@@ -96,10 +85,8 @@
     initPegboardSquares(currentPegboard);
     initPegboardSelect(appData, currentPegboard);
     initSymbolLibrary(symbolLibrary, symbolTable, keyMap);
-    initKeyColors();
-    initKeySymbols();
-    // init key colors
-    // init key symbols
+    initKeyColors(keyColorSquares, keyMap, colorTable);
+    initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable);
 
     setActiveColorIndex(keyMap, 0);
     setViewMode(viewMode);
@@ -121,7 +108,7 @@
     }
 
     mouseDown = true;
-    togglePegboardSquare(e.target, activeColorIndex, activeSymbolIndex);
+    togglePegboardSquare(e.target, activeColorIndex, keyMap.c[activeColorIndex]);
   }
 
 
@@ -372,9 +359,23 @@
   }
 
 
-  function initKeyColors(keyColorSquares) {
+  function initKeyColors(keyColorSquares, keyMap, colorTable) {
+
+    colorTable.forEach((color, index) => {
+      keyColorSquares[index].classList.add(colorTable[index]);
+    });
+
   }
-  function initKeySymbols(keyMap, symbolSquares) {
+
+  function initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable) {
+
+    keySymbolSquares.forEach((square) => {
+      const keyItemNumber = /symbol-(.*)/.exec(square.id)?.[1]; // same as color index
+      const symbolIndex = keyMap.c[keyItemNumber];
+      square.dataset.symbolIndex = symbolIndex;
+      square.innerHTML = symbolTable[symbolIndex];
+    });
+
   }
 
   function initSymbolLibrary(parentEl, symbolTable, keyMap) {
@@ -415,16 +416,7 @@
         el.dataset.color = colorTable[colorIndex];
         el.innerHTML = symbolIndex == null ? '' : symbolTable[symbolIndex];
 
-      } else {
-
-        /*
-        el.dataset.symbolIndex = '';
-        el.dataset.colorIndex = '';
-        el.innerHTML = '';
-        */
-
       }
-
     });
 
   }
@@ -471,14 +463,47 @@
 
   function onKeyClick(e) {
 
-    if (!e.target.classList.contains('key-color-square')) {
-      return;
+    if (e.target.classList.contains('key-color-square')) {
+
+      const colorIndex = /color-(.*)/.exec(e.target.id)?.[1];
+      setActiveColorIndex(keyMap, colorIndex);
+
+    } else if (e.target.classList.contains('key-symbol-square')) { 
+      
+      // click on symbol in key:
+      // - lights up selected symbol in symbol library
+      // - when you click on another symbol in the symbol library
+      // it changes key's selected symbol and disabled lit up library symbol.
+      // active Symbol index => key symbol
+      // active symbolLibraryIndex => symbolLibrary[activeKeySymbol];
+
+
+      // if active: deactivate
+      const isActive = e.target.classList.contains('active');
+      const indexInSymbolLibrary = e.target.dataset.symbolIndex;
+      if (isActive) {
+        e.target.classList.remove('active');
+        symbolLibrary.children[indexInSymbolLibrary].classList.remove('active');
+      } else {
+      // if inactive: activate
+        keySymbolSquares.forEach(el => {
+          if (el === e.target) {
+            el.classList.add('active');
+            symbolLibrary.children[el.dataset.symbolIndex].classList.add('active');
+          } else {
+            el.classList.remove('active');
+            symbolLibrary.children[el.dataset.symbolIndex].classList.remove('active');
+          }
+        });
+      }
+
     }
 
-    const colorIndex = /color-(.*)/.exec(e.target.id)?.[1];
 
-    setActiveColorIndex(keyMap, colorIndex);
 
+  }
+
+  function setActiveSymbolIndex(keyMap, symbolIndex) {
   }
 
   // when a color palette item is clicked, highlight and set to active color
@@ -495,14 +520,15 @@
 
     // activate new color
     colorSquare.classList.add('active');
-    activeSymbolIndex = keyMap.c[colorIndex];
 
   }
 
-  function togglePegboardSquare(element, activeColorIndex, activeSymbolIndex) {
+  function togglePegboardSquare(element, colorIndex, symbolIndex) {
+    console.log(activeSymbolIndex);
 
-    // untoggle square
-    if (element.dataset.colorIndex == activeColorIndex && element.dataset.symbolIndex == activeSymbolIndex) {
+    // toggle previously selected square off
+    if (element.dataset.colorIndex == colorIndex && 
+        element.dataset.symbolIndex == symbolIndex) {
 
       delete element.dataset.colorIndex;
       delete element.dataset.color;
@@ -510,11 +536,11 @@
       element.innerHTML = '';
 
     } else {
-      // set square 
-      element.dataset.colorIndex = activeColorIndex;
-      element.dataset.color = colorTable[activeColorIndex];
-      element.dataset.symbolIndex = activeSymbolIndex;
-      element.innerHTML = symbolTable[activeSymbolIndex];
+      // set new square
+      element.dataset.colorIndex = colorIndex;
+      element.dataset.color = colorTable[colorIndex];
+      element.dataset.symbolIndex = symbolIndex;
+      element.innerHTML = symbolTable[symbolIndex];
     }
 
   }
@@ -638,6 +664,8 @@
   newPegboardButton.addEventListener('click', createNewPegboard);
   clearPegboardButton.addEventListener('click', clearPegboard);
   copyPegboardButton.addEventListener('click', copyPegboard);
+
+
 
   initApp();
 

@@ -36,7 +36,12 @@ html, body * {
 .pegboard-key-container {
   display: flex; 
   flex-direction: column;
-  margin-left: 20px;
+}
+
+.pegboard-symbol-and-key-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 #symbol-library {
@@ -106,15 +111,19 @@ html, body * {
 }
 
 .key-color-square {
-  border: 1px solid white;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
+.key-symbol-square.active,
 .key-color-square.active {
   border: 3px dotted black;
+}
+
+#symbol-library > .symbol.selected.active {
+  background: yellow;
 }
 
 #white {
@@ -135,6 +144,22 @@ html, body * {
 
 #blue {
   background-color: rgb(0,85,117);
+}
+
+.key-color-square.white {
+  background-color: rgb(255 255 255);
+}
+.key-color-square.blue {
+  background-color: rgb(0,85,117);
+}
+.key-color-square.red {
+  background-color: rgb(255,3,27);
+}
+.key-color-square.yellow {
+  background-color: rgb(255,184,44);
+}
+.key-color-square.green {
+  background-color: rgb(0,166,76);
 }
 
 [data-color="white"] {
@@ -206,7 +231,7 @@ html, body * {
   color: black;
 }
 
-.pegboard {
+.pegboard-container {
   -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
