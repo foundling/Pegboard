@@ -122,6 +122,10 @@ html, body * {
   border: 3px dotted black;
 }
 
+#symbol-library > .symbol.active {
+  background: cyan;
+}
+
 #symbol-library > .symbol.selected.active {
   background: yellow;
 }

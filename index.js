@@ -27,6 +27,7 @@
   const keySymbolSquares = pegboardKey.querySelectorAll('.key-symbol-square');
   const keyColorSquares = pegboardKey.querySelectorAll('.key-color-square');
   const symbolLibrary = document.getElementById('symbol-library');
+  const symbolLibrarySymbols = symbolLibrary.getElementsByClassName('symbol');
 
 
   // Menu + Pegboard Controls  UI 
@@ -49,6 +50,7 @@
   let currentPegboard = null;
   let viewMode = 'color'; // color | symbol
   let mouseDown = false;
+  let symbolLibrarySelectionInProgress = false;
 
 
   function buildKey(symbols, colors) {
@@ -387,7 +389,9 @@
       return `
         <li 
           class="symbol ${active ? 'selected' : ''}" 
-          data-symbol="${symbol}">${symbol}</li>
+          data-symbol="${symbol}"
+          data-symbol-index="${index}"
+        >${symbol}</li>
       `;
 
     }).join('');
@@ -461,6 +465,40 @@
     pegboardList.insertAdjacentHTML('beforeend', listMarkup);
   }
 
+  function onSymbolLibraryClick(e) {
+
+    if (!e.target.classList.contains('symbol')) {
+      return;
+    }
+    if (!symbolLibrarySelectionInProgress) {
+      return;
+    }
+
+    if (e.target.classList.contains('active')) {
+      e.target.classList.remove('active');
+    } else {
+      [...symbolLibrarySymbols].forEach(el => {
+        if (el === e.target) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+    }
+
+
+    const symbolIndex = e.target.dataset.symbolIndex;
+    keyMap.c[activeSymbolIndex] = symbolIndex;
+    keyMap.s[symbolIndex] = activeSymbolIndex;
+
+
+    console.log(JSON.stringify(keyMap, null, 2))
+    initKeyColors(keyColorSquares, keyMap, colorTable);
+    initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable);
+
+
+  }
+
   function onKeyClick(e) {
 
     if (e.target.classList.contains('key-color-square')) {
@@ -481,9 +519,11 @@
       // if active: deactivate
       const isActive = e.target.classList.contains('active');
       const indexInSymbolLibrary = e.target.dataset.symbolIndex;
+      activeSymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
       if (isActive) {
         e.target.classList.remove('active');
         symbolLibrary.children[indexInSymbolLibrary].classList.remove('active');
+        symbolLibrarySelectionInProgress = false;
       } else {
       // if inactive: activate
         keySymbolSquares.forEach(el => {
@@ -495,11 +535,10 @@
             symbolLibrary.children[el.dataset.symbolIndex].classList.remove('active');
           }
         });
+        symbolLibrarySelectionInProgress = true;
       }
 
     }
-
-
 
   }
 
@@ -524,7 +563,6 @@
   }
 
   function togglePegboardSquare(element, colorIndex, symbolIndex) {
-    console.log(activeSymbolIndex);
 
     // toggle previously selected square off
     if (element.dataset.colorIndex == colorIndex && 
@@ -650,6 +688,7 @@
    */
 
   pegboardKey.addEventListener('click', onKeyClick);
+  symbolLibrary.addEventListener('click', onSymbolLibraryClick);
   pegboardNameInput.addEventListener('change', onPegboardNameChange);
   pegboardSelect.addEventListener('change', onPegboardSelectChange);
   viewModeSelector.addEventListener('change', onViewModeChange); 
@@ -664,7 +703,6 @@
   newPegboardButton.addEventListener('click', createNewPegboard);
   clearPegboardButton.addEventListener('click', clearPegboard);
   copyPegboardButton.addEventListener('click', copyPegboard);
-
 
 
   initApp();
