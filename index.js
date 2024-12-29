@@ -69,7 +69,6 @@
   let mouseDown = false;
   let symbolLibrarySelectionInProgress = false;
 
-
   function buildKey(symbols, colors) {
 
     const keyMap = {
@@ -484,52 +483,49 @@
 
   function onSymbolLibraryClick(e) {
 
-    if (!e.target.classList.contains('symbol')) {
+    const symbolSquare = e.target;
+
+    if (!symbolSquare.classList.contains('symbol')) {
       return;
     }
+
     if (!symbolLibrarySelectionInProgress) {
       return;
     }
 
-    const symbolSquare = e.target;
-    const symbolSquares = [...symbolLibrarySymbols];
-    const elementIndex = symbolSquares.indexOf(symbolSquare);
-
-    // clicking on active square:
-    // deselect library symbol square 
-    // AND deselect active symbol square. 
-    //
-    // clicking on new square:
-    // deactivate prev lib square if it exists,
-    // resetting that value.
-    // activate new square
-
-    // this square is selected
-    if (symbolSquare.classList.contains('active')) {
-      e.target.classList.remove('active');
-      activeSymbolLibraryIndex = null;
-
-    } else {
-
-      // if existing active square highlighted
-      if (activeSymbolLibraryIndex) {
-        symbolSquares[activeSymbolLibraryIndex].classList.remove('active');
-      }
-        
-      // select current square, and update active square index
-      symbolSquares[elementIndex].classList.add('active');
-      activeSymbolLibraryIndex = elementIndex;
-
+    // if active or seleted squares are clicked,
+    // return, nothing should happen.
+    if (symbolSquare.classList.contains('selected')) {
+      return;
     }
 
-    // update keymap
-    const symbolIndex = e.target.dataset.symbolIndex;
-    keyMap.c[activeSymbolIndex] = symbolIndex;
-    keyMap.s[symbolIndex] = activeSymbolIndex;
+    const symbolSquares = [...symbolLibrarySymbols];
+    const newActiveSymboLibraryIndex = symbolSquares.indexOf(symbolSquare);
 
+    // remove existing active/selected item
+    symbolSquares[activeSymbolLibraryIndex].classList.remove('active');
+    symbolSquares[activeSymbolLibraryIndex].classList.remove('selected');
+
+    // light up new active/selected.
+    symbolSquares[newActiveSymboLibraryIndex].classList.add('active');
+    symbolSquares[newActiveSymboLibraryIndex].classList.add('selected');
+
+    // current color index associated with symbol
+    // new library index associated with symbol
+    //keyMap.s[activeSymbolLibraryIndex] = 
 
     // rerender keymap ui dependents
     console.log(JSON.stringify(keyMap, null, 2))
+
+    delete keyMap.s[activeSymbolIndex];
+    delete keyMap.c[activeColorIndex];
+
+    keyMap.c[activeColorIndex] = newActiveSymboLibraryIndex;
+    keyMap.s[newActiveSymboLibraryIndex] = activeColorIndex;
+
+    activeSymbolLibraryIndex = newActiveSymboLibraryIndex;
+    console.log(JSON.stringify(keyMap, null, 2))
+
     initKeyColors(keyColorSquares, keyMap, colorTable);
     initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable);
 
@@ -545,23 +541,19 @@
 
     } else if (e.target.classList.contains('key-symbol-square')) { 
       
-      // click on symbol in key:
-      // - lights up selected symbol in symbol library
-      // - when you click on another symbol in the symbol library
-      // it changes key's selected symbol and disabled lit up library symbol.
-      // active Symbol index => key symbol
-      // active symbolLibraryIndex => symbolLibrary[activeKeySymbol];
-
+      symbolLibrary.classList.add('selecting');
+      activeSymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
 
       // if active: deactivate
       const isActive = e.target.classList.contains('active');
       const indexInSymbolLibrary = e.target.dataset.symbolIndex;
-      activeSymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
       if (isActive) {
+        symbolLibrary.classList.remove('selecting');
         activeSymbolLibraryIndex = null;
         e.target.classList.remove('active');
         symbolLibrary.children[indexInSymbolLibrary].classList.remove('active');
         symbolLibrarySelectionInProgress = false;
+
       } else {
       // if inactive: activate
         activeSymbolLibraryIndex = indexInSymbolLibrary;;

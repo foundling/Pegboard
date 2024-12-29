@@ -122,6 +122,9 @@ html, body * {
   border: 3px dotted black;
 }
 
+#symbol-library.selecting > .symbol.selected:not(.active) {
+  opacity: 0.2;
+}
 #symbol-library > .symbol.active {
   background: cyan;
 }
