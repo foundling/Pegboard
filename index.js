@@ -62,7 +62,7 @@
 
   // app state
   let activeColorIndex = null;
-  let activeSymbolIndex = null;
+  let activeKeySymbolIndex = null;
   let activeSymbolLibraryIndex = null;
   let currentPegboard = null;
   let viewMode = 'color'; // color | symbol
@@ -135,7 +135,7 @@
     const isPegboardSquare = e.target.classList.contains('pegboard-square');
 
     if (isPegboardSquare && mouseDown) {
-      togglePegboardSquare(e.target, activeColorIndex, activeSymbolIndex);
+      togglePegboardSquare(e.target, activeColorIndex, activeKeySymbolIndex);
     }
     if (!isPegboardSquare && mouseDown) {
       mouseDown = false;
@@ -500,35 +500,31 @@
     }
 
     const symbolSquares = [...symbolLibrarySymbols];
-    const newActiveSymboLibraryIndex = symbolSquares.indexOf(symbolSquare);
+    const newActiveSymbolLibraryIndex = symbolSquares.indexOf(symbolSquare);
 
     // remove existing active/selected item
     symbolSquares[activeSymbolLibraryIndex].classList.remove('active');
     symbolSquares[activeSymbolLibraryIndex].classList.remove('selected');
 
     // light up new active/selected.
-    symbolSquares[newActiveSymboLibraryIndex].classList.add('active');
-    symbolSquares[newActiveSymboLibraryIndex].classList.add('selected');
+    symbolSquares[newActiveSymbolLibraryIndex].classList.add('active');
+    symbolSquares[newActiveSymbolLibraryIndex].classList.add('selected');
 
-    // current color index associated with symbol
-    // new library index associated with symbol
-    //keyMap.s[activeSymbolLibraryIndex] = 
+
+    // update keymap
+    delete keyMap.s[activeSymbolLibraryIndex]; 
+    keyMap.c[activeKeySymbolIndex] = newActiveSymbolLibraryIndex;
+    keyMap.s[newActiveSymbolLibraryIndex] = activeKeySymbolIndex;
+
+    // update active symbol library index
+    activeSymbolLibraryIndex = newActiveSymbolLibraryIndex;
 
     // rerender keymap ui dependents
-    console.log(JSON.stringify(keyMap, null, 2))
-
-    delete keyMap.s[activeSymbolIndex];
-    delete keyMap.c[activeColorIndex];
-
-    keyMap.c[activeColorIndex] = newActiveSymboLibraryIndex;
-    keyMap.s[newActiveSymboLibraryIndex] = activeColorIndex;
-
-    activeSymbolLibraryIndex = newActiveSymboLibraryIndex;
-    console.log(JSON.stringify(keyMap, null, 2))
-
     initKeyColors(keyColorSquares, keyMap, colorTable);
     initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable);
 
+    //TODO: maybe set bg color in symbol library to actual color
+    //it's associated w/ 
 
   }
 
@@ -542,7 +538,7 @@
     } else if (e.target.classList.contains('key-symbol-square')) { 
       
       symbolLibrary.classList.add('selecting');
-      activeSymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
+      activeKeySymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
 
       // if active: deactivate
       const isActive = e.target.classList.contains('active');
@@ -550,6 +546,7 @@
       if (isActive) {
         symbolLibrary.classList.remove('selecting');
         activeSymbolLibraryIndex = null;
+        activeKeySymbolIndex = null;
         e.target.classList.remove('active');
         symbolLibrary.children[indexInSymbolLibrary].classList.remove('active');
         symbolLibrarySelectionInProgress = false;
@@ -730,6 +727,18 @@
   pegboard.addEventListener('mousedown', onMouseDown);
   pegboard.addEventListener('mouseup', onMouseUp);
   document.body.addEventListener('mouseover', onMouseOver);
+  document.body.addEventListener('click', () => console.log( 
+    JSON.stringify({
+      keyMap,
+      activeColorIndex,
+      activeKeySymbolIndex,
+      activeSymbolLibraryIndex,
+      currentPegboard,
+      viewMode,
+      mouseDown,
+      symbolLibrarySelectionInProgress
+    }, null, 2)
+  ));
 
   newPegboardButton.addEventListener('click', createNewPegboard);
   clearPegboardButton.addEventListener('click', clearPegboard);
