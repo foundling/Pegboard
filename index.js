@@ -69,7 +69,7 @@
   let mouseDown = false;
   let symbolLibrarySelectionInProgress = false;
 
-  function buildKey(symbols, colors) {
+  function buildKeyMap(symbols, colors) {
 
     const keyMap = {
       s: {},
@@ -95,7 +95,10 @@
    */
   function initApp() {
 
-    keyMap = buildKey(symbolTable, colorTable);
+
+    // TODO: store keymap in pegboard record, include in CRUD cycle.
+
+    keyMap = buildKeyMap(symbolTable, colorTable);
     const appData = loadAppFromLocalStorage() || initStorage();
     currentPegboard = findLastTouched(appData);
     pegboardNameInput.value = currentPegboard.name;
@@ -263,14 +266,14 @@
     name='new pegboard',
     squares={},
     timestamp=Date.now(),
-    symbolLibraryIndexes
+    keyMap=defaultKeyMap()
   }) {
 
     return {
       id,
       name,
       squares,
-      symbolLibraryIndexes,
+      keyMap
     };
 
   }
@@ -293,7 +296,6 @@
       id: DEFAULT_PEGBOARD_ID,
       name: 'new pegboard',
       squares: {},
-      symbolLibraryIndexes: []
     })
 
     return savePegboard(record);
@@ -510,9 +512,10 @@
     symbolSquares[newActiveSymbolLibraryIndex].classList.add('active');
     symbolSquares[newActiveSymbolLibraryIndex].classList.add('selected');
 
-
     // update keymap
+    // delete s index only because the c index will get overwritten.
     delete keyMap.s[activeSymbolLibraryIndex]; 
+
     keyMap.c[activeKeySymbolIndex] = newActiveSymbolLibraryIndex;
     keyMap.s[newActiveSymbolLibraryIndex] = activeKeySymbolIndex;
 
