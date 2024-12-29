@@ -1,3 +1,19 @@
+/*
+ * TODO: 
+ *
+ * notes on UI behavior:
+ *
+ * symbol selection mode:
+ * when you activate a symbol for reselection, corresponding
+ * symbol in library lights up.  click on another library symbol
+ * in that mode moves the active symbol to that symbol as long
+ * as the active symbol is highlighted in the symbol key area.
+ *
+ * when a symbol is selected (the highlighted symbol square in the library 
+ * changes), update the symbol and color keys, plus the board and save new state.
+ * a lot of updates there.
+ *
+ */
 (function Pegboard() {
 
   // static config values
@@ -47,6 +63,7 @@
   // app state
   let activeColorIndex = null;
   let activeSymbolIndex = null;
+  let activeSymbolLibraryIndex = null;
   let currentPegboard = null;
   let viewMode = 'color'; // color | symbol
   let mouseDown = false;
@@ -474,24 +491,44 @@
       return;
     }
 
-    if (e.target.classList.contains('active')) {
+    const symbolSquare = e.target;
+    const symbolSquares = [...symbolLibrarySymbols];
+    const elementIndex = symbolSquares.indexOf(symbolSquare);
+
+    // clicking on active square:
+    // deselect library symbol square 
+    // AND deselect active symbol square. 
+    //
+    // clicking on new square:
+    // deactivate prev lib square if it exists,
+    // resetting that value.
+    // activate new square
+
+    // this square is selected
+    if (symbolSquare.classList.contains('active')) {
       e.target.classList.remove('active');
+      activeSymbolLibraryIndex = null;
+
     } else {
-      [...symbolLibrarySymbols].forEach(el => {
-        if (el === e.target) {
-          el.classList.add('active');
-        } else {
-          el.classList.remove('active');
-        }
-      });
+
+      // if existing active square highlighted
+      if (activeSymbolLibraryIndex) {
+        symbolSquares[activeSymbolLibraryIndex].classList.remove('active');
+      }
+        
+      // select current square, and update active square index
+      symbolSquares[elementIndex].classList.add('active');
+      activeSymbolLibraryIndex = elementIndex;
+
     }
 
-
+    // update keymap
     const symbolIndex = e.target.dataset.symbolIndex;
     keyMap.c[activeSymbolIndex] = symbolIndex;
     keyMap.s[symbolIndex] = activeSymbolIndex;
 
 
+    // rerender keymap ui dependents
     console.log(JSON.stringify(keyMap, null, 2))
     initKeyColors(keyColorSquares, keyMap, colorTable);
     initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable);
@@ -521,11 +558,13 @@
       const indexInSymbolLibrary = e.target.dataset.symbolIndex;
       activeSymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
       if (isActive) {
+        activeSymbolLibraryIndex = null;
         e.target.classList.remove('active');
         symbolLibrary.children[indexInSymbolLibrary].classList.remove('active');
         symbolLibrarySelectionInProgress = false;
       } else {
       // if inactive: activate
+        activeSymbolLibraryIndex = indexInSymbolLibrary;;
         keySymbolSquares.forEach(el => {
           if (el === e.target) {
             el.classList.add('active');
