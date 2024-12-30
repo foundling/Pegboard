@@ -125,11 +125,12 @@ html, body * {
 #symbol-library.selecting > .symbol.selected:not(.active) {
   opacity: 0.2;
 }
-#symbol-library > .symbol.active {
-  background: cyan;
+
+#symbol-library > .symbol.selected {
+  background: lightgray;
 }
 
-#symbol-library > .symbol.selected.active {
+#symbol-library > .symbol.active {
   background: yellow;
 }
 

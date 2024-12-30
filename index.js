@@ -24,8 +24,6 @@
     'white', 'red', 'yellow', 'green', 'blue'
   ];
 
-  let keyMap;
-
   const symbolTable = [
      '&#9722;', '&#8679;',  '&#9672;', '&#9826;', '&#9873;',
      '&#9726;', '&#126;',   '&#35;',   '&#9711;', '&#61;',
@@ -76,11 +74,16 @@
       c: {}
     };
 
+    // these are totally arbitrary symbols, 
+    // chose them so they aren't 0-5, which is confusing.
+    const defaultSymbolLibraryIndices = [0,5,10,15, 20];
+
     for (let i = 0; i < colors.length; ++i) {
 
-      keyMap.s[i] = i;
-      keyMap.c[i] = i;
+      const symbolLibraryIndex = defaultSymbolLibraryIndices[i];  
 
+      keyMap.s[symbolLibraryIndex] = i;
+      keyMap.c[i] = symbolLibraryIndex;
 
     }
 
@@ -98,18 +101,17 @@
 
     // TODO: store keymap in pegboard record, include in CRUD cycle.
 
-    keyMap = buildKeyMap(symbolTable, colorTable);
     const appData = loadAppFromLocalStorage() || initStorage();
     currentPegboard = findLastTouched(appData);
     pegboardNameInput.value = currentPegboard.name;
 
-    initPegboardSquares(currentPegboard);
+    drawPegboard(currentPegboard);
     initPegboardSelect(appData, currentPegboard);
-    initSymbolLibrary(symbolLibrary, symbolTable, keyMap);
-    initKeyColors(keyColorSquares, keyMap, colorTable);
-    initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable);
+    initSymbolLibrary(symbolLibrary, symbolTable, currentPegboard.keyMap);
+    initKeyColors(keyColorSquares, currentPegboard.keyMap, colorTable);
+    initKeySymbols(keySymbolSquares, currentPegboard.keyMap, symbolTable, colorTable);
 
-    setActiveColorIndex(keyMap, 0);
+    setActiveColorIndex(currentPegboard.keyMap, 0);
     setViewMode(viewMode);
 
   }
@@ -129,7 +131,40 @@
     }
 
     mouseDown = true;
-    togglePegboardSquare(e.target, activeColorIndex, keyMap.c[activeColorIndex]);
+
+    const element = e.target;
+    const colorIndex = activeColorIndex;
+    const symbolIndex = currentPegboard.keyMap.c[activeColorIndex];
+
+    const squareIndex = [...pegboardSquares].indexOf(e.target); 
+
+    // toggle previously selected square off
+    if (element.dataset.colorIndex == colorIndex && 
+        element.dataset.symbolIndex == symbolIndex) {
+
+      delete element.dataset.colorIndex;
+      delete element.dataset.color;
+      delete element.dataset.symbolIndex;
+      element.innerHTML = '';
+
+      // unset this square's data in model 
+      delete currentPegboard.squares[squareIndex];
+
+    } else {
+      // set new square
+      element.dataset.colorIndex = colorIndex;
+      element.dataset.color = colorTable[colorIndex];
+      element.dataset.symbolIndex = symbolIndex;
+      element.innerHTML = symbolTable[symbolIndex];
+
+      currentPegboard.squares[squareIndex] = {
+        colorIndex,
+        symbolIndex
+      };
+
+    }
+
+
   }
 
 
@@ -137,10 +172,41 @@
 
     const isPegboardSquare = e.target.classList.contains('pegboard-square');
 
+    // TODO: simplify this 'if else' 
     if (isPegboardSquare && mouseDown) {
-      togglePegboardSquare(e.target, activeColorIndex, activeKeySymbolIndex);
-    }
-    if (!isPegboardSquare && mouseDown) {
+
+      const element = e.target;
+      const colorIndex = activeColorIndex;
+      const symbolIndex = currentPegboard.keyMap.c[activeColorIndex];
+      const squareIndex = [...pegboardSquares].indexOf(e.target); 
+
+      // toggle previously selected square off
+      if (element.dataset.colorIndex == colorIndex && 
+          element.dataset.symbolIndex == symbolIndex) {
+
+        delete element.dataset.colorIndex;
+        delete element.dataset.color;
+        delete element.dataset.symbolIndex;
+        element.innerHTML = '';
+
+        // unset this square's data in model 
+        delete currentPegboard.squares[squareIndex];
+
+      } else {
+        // set new square
+        element.dataset.colorIndex = colorIndex;
+        element.dataset.color = colorTable[colorIndex];
+        element.dataset.symbolIndex = symbolIndex;
+        element.innerHTML = symbolTable[symbolIndex];
+
+        currentPegboard.squares[squareIndex] = {
+          colorIndex,
+          symbolIndex
+        };
+
+      }
+
+    } else if (!isPegboardSquare && mouseDown) {
       mouseDown = false;
     }
 
@@ -152,8 +218,9 @@
     mouseDown = false;
 
     // persist a sparse map of grid state.
-    const squares = getSquareDataFromPegboard(pegboardSquares);
-    currentPegboard.squares = squares;
+    // shouldn't need this fn.      
+    //const squares = getSquareDataFromPegboard(pegboardSquares);
+    //currentPegboard.squares = squares;
 
     savePegboard(currentPegboard);
 
@@ -266,7 +333,7 @@
     name='new pegboard',
     squares={},
     timestamp=Date.now(),
-    keyMap=defaultKeyMap()
+    keyMap=buildKeyMap(symbolTable, colorTable)
   }) {
 
     return {
@@ -389,7 +456,7 @@
 
   function initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable) {
 
-    keySymbolSquares.forEach((square) => {
+    keySymbolSquares.forEach((square, index) => {
       const keyItemNumber = /symbol-(.*)/.exec(square.id)?.[1]; // same as color index
       const symbolIndex = keyMap.c[keyItemNumber];
       square.dataset.symbolIndex = symbolIndex;
@@ -419,11 +486,15 @@
 
   }
 
-  function initPegboardSquares(record) {
+  // set squares based on record
+  function drawPegboard(record) {
 
-    pegboardSquares.forEach((el, index) => {
+    const keyMap = record.keyMap;
+    const squares = [...pegboardSquares]; 
 
-      const oldColorIndex = el.dataset.colorIndex;
+    squares.forEach((el, index) => {
+
+      //const oldColorIndex = el.dataset.colorIndex;
       const squareData = record.squares[index]; 
       // reminder .squares is not an array, it's an obj with index-looking keys.
 
@@ -438,6 +509,11 @@
         el.dataset.color = colorTable[colorIndex];
         el.innerHTML = symbolIndex == null ? '' : symbolTable[symbolIndex];
 
+      } else {
+        el.dataset.symbolIndex = '';
+        el.dataset.colorIndex = '';
+        el.dataset.color = '';
+        el.innerHTML = '';
       }
     });
 
@@ -495,39 +571,47 @@
       return;
     }
 
-    // if active or seleted squares are clicked,
-    // return, nothing should happen.
+    // ignore clicks on active symbol library square
     if (symbolSquare.classList.contains('selected')) {
       return;
     }
 
     const symbolSquares = [...symbolLibrarySymbols];
     const newActiveSymbolLibraryIndex = symbolSquares.indexOf(symbolSquare);
+    const oldActiveSymbolLibraryIndex = activeSymbolLibraryIndex; 
 
     // remove existing active/selected item
-    symbolSquares[activeSymbolLibraryIndex].classList.remove('active');
-    symbolSquares[activeSymbolLibraryIndex].classList.remove('selected');
+    symbolSquares[oldActiveSymbolLibraryIndex].classList.remove('selected');
 
     // light up new active/selected.
-    symbolSquares[newActiveSymbolLibraryIndex].classList.add('active');
     symbolSquares[newActiveSymbolLibraryIndex].classList.add('selected');
 
-    // update keymap
-    // delete s index only because the c index will get overwritten.
-    delete keyMap.s[activeSymbolLibraryIndex]; 
+    // update keymap bidirectional color-symbol connection
+    delete currentPegboard.keyMap.s[oldActiveSymbolLibraryIndex]; 
+    currentPegboard.keyMap.c[activeKeySymbolIndex] = newActiveSymbolLibraryIndex;
+    currentPegboard.keyMap.s[newActiveSymbolLibraryIndex] = activeKeySymbolIndex;
 
-    keyMap.c[activeKeySymbolIndex] = newActiveSymbolLibraryIndex;
-    keyMap.s[newActiveSymbolLibraryIndex] = activeKeySymbolIndex;
+    Object.keys(currentPegboard.squares).forEach(squareIndexKey => {
+      if (!currentPegboard.squares[squareIndexKey]) {
+        return;
+      }
+      currentPegboard.squares[squareIndexKey].symbolIndex = newActiveSymbolLibraryIndex;
+    });
+    // TODO: update squares
+    savePegboard(currentPegboard);
+
+    // rerender keymap ui dependents
+    initKeyColors(keyColorSquares, currentPegboard.keyMap, colorTable);
+    initKeySymbols(keySymbolSquares, currentPegboard.keyMap, symbolTable, colorTable);
+
+    // redraw pegboard
+    drawPegboard(currentPegboard);
 
     // update active symbol library index
     activeSymbolLibraryIndex = newActiveSymbolLibraryIndex;
 
-    // rerender keymap ui dependents
-    initKeyColors(keyColorSquares, keyMap, colorTable);
-    initKeySymbols(keySymbolSquares, keyMap, symbolTable, colorTable);
 
     //TODO: maybe set bg color in symbol library to actual color
-    //it's associated w/ 
 
   }
 
@@ -536,24 +620,19 @@
     if (e.target.classList.contains('key-color-square')) {
 
       const colorIndex = /color-(.*)/.exec(e.target.id)?.[1];
-      setActiveColorIndex(keyMap, colorIndex);
+      setActiveColorIndex(currentPegboard.keyMap, colorIndex);
 
     } else if (e.target.classList.contains('key-symbol-square')) { 
       
-      symbolLibrary.classList.add('selecting');
       activeKeySymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
 
       // if active: deactivate
+      cons: indexInSymbolLibrary = e.target.dataset.symbolIndex;
       const isActive = e.target.classList.contains('active');
-      const indexInSymbolLibrary = e.target.dataset.symbolIndex;
       if (isActive) {
-        symbolLibrary.classList.remove('selecting');
         activeSymbolLibraryIndex = null;
         activeKeySymbolIndex = null;
-        e.target.classList.remove('active');
-        symbolLibrary.children[indexInSymbolLibrary].classList.remove('active');
         symbolLibrarySelectionInProgress = false;
-
       } else {
       // if inactive: activate
         activeSymbolLibraryIndex = indexInSymbolLibrary;;
@@ -571,9 +650,6 @@
 
     }
 
-  }
-
-  function setActiveSymbolIndex(keyMap, symbolIndex) {
   }
 
   // when a color palette item is clicked, highlight and set to active color
@@ -594,24 +670,6 @@
   }
 
   function togglePegboardSquare(element, colorIndex, symbolIndex) {
-
-    // toggle previously selected square off
-    if (element.dataset.colorIndex == colorIndex && 
-        element.dataset.symbolIndex == symbolIndex) {
-
-      delete element.dataset.colorIndex;
-      delete element.dataset.color;
-      delete element.dataset.symbolIndex;
-      element.innerHTML = '';
-
-    } else {
-      // set new square
-      element.dataset.colorIndex = colorIndex;
-      element.dataset.color = colorTable[colorIndex];
-      element.dataset.symbolIndex = symbolIndex;
-      element.innerHTML = symbolTable[symbolIndex];
-    }
-
   }
 
 
@@ -641,7 +699,7 @@
   function switchPegboard(pegboardId) {
 
     currentPegboard = loadPegboardById(pegboardId)
-    initPegboardSquares(currentPegboard);
+    drawPegboard(currentPegboard);
     pegboardNameInput.value = currentPegboard.name;
 
   }
@@ -676,10 +734,13 @@
   }
 
   function clearPegboard() {
+
     // save pegboard with empty squares obj
     currentPegboard.squares = {}; 
     savePegboard(currentPegboard);
+
     initApp();
+
   }
 
   function createNewPegboard() {
@@ -698,7 +759,7 @@
 
     initPegboardSelect(appData, currentPegboard);
     pegboardNameInput.value = currentPegboard.name;
-    initPegboardSquares(currentPegboard);
+    drawPegboard(currentPegboard);
 
   }
 
@@ -732,7 +793,7 @@
   document.body.addEventListener('mouseover', onMouseOver);
   document.body.addEventListener('click', () => console.log( 
     JSON.stringify({
-      keyMap,
+      currentPegboard,
       activeColorIndex,
       activeKeySymbolIndex,
       activeSymbolLibraryIndex,
