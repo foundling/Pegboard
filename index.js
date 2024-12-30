@@ -1,3 +1,7 @@
+// TODO: 
+// cases when active symbol key should be deactivated:
+// - when switching active key color
+// - when clicking outside of symbol library.
 (function Pegboard() {
 
   // static config values
@@ -32,6 +36,7 @@
   const loadButton = document.getElementById('load-button');
   const pegboardSelect = document.getElementById('pegboard-select')
   const pegboardNameInput = document.getElementById('pegboard-name-input');
+  const resetAppDataButton = document.getElementById('reset-database');
   const newPegboardButton = document.getElementById('new-pegboard');
   const clearPegboardButton = document.getElementById('clear-pegboard');
   const copyPegboardButton = document.getElementById('copy-pegboard');
@@ -201,11 +206,6 @@
 
     mouseDown = false;
 
-    // persist a sparse map of grid state.
-    // shouldn't need this fn.      
-    //const squares = getSquareDataFromPegboard(pegboardSquares);
-    //currentPegboard.squares = squares;
-
     savePegboard(currentPegboard);
 
   }
@@ -340,6 +340,13 @@
 
   }
 
+  function resetAppData() {
+
+    localStorage.removeItem('pegboard'); 
+
+    initApp();
+
+  }
 
   function initStorage() {
 
@@ -386,24 +393,6 @@
     return loadAppFromLocalStorage();
   }
 
-  function getSquareDataFromPegboard(pegboardSquareElements) {
-
-    // storage record's .squares is a sparse map of the pegboard state.
-    return [...pegboardSquareElements].reduce((o, el, index) => {
-
-      const colorIndex = el.dataset.colorIndex;
-      const symbolIndex = el.dataset.symbolIndex;
-
-      if (colorIndex != null && symbolIndex != null) {
-        o[index] = { colorIndex, symbolIndex };
-      }
-
-      return o;
-
-    }, {});
-
-  }
-
   function savePegboard(pegboardRecord) {
 
     pegboardRecord.timestamp = Date.now();
@@ -428,7 +417,6 @@
     return JSON.parse(localStorage.getItem(APP_STORAGE_KEY));
 
   }
-
 
   function initKeyColors(keyColorSquares, keyMap, colorTable) {
 
@@ -802,6 +790,7 @@
 
   newPegboardButton.addEventListener('click', createNewPegboard);
   clearPegboardButton.addEventListener('click', clearPegboard);
+  resetAppDataButton.addEventListener('click', resetAppData);
   copyPegboardButton.addEventListener('click', copyPegboard);
 
 
