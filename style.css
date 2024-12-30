@@ -212,16 +212,6 @@ html, body * {
   padding-right: 20px;
 }
 
-.print-view > :not(.pegboard-container),
-#symbol-library {
-  display: none;
-}
-
-
-.print-view {
-  zoom: 1.5;
-}
-
 .pegboard-actions,
 .pegboard-list,
 .pegboard-name,
@@ -244,6 +234,9 @@ html, body * {
   display: none;
 }
 
+.print-container .pegboard-symbol-and-key-container {
+  display: none;
+}
 .print-container > .pegboard-container {
   zoom: 1.2;
   margin: 200px 130px 0px 150px; 
