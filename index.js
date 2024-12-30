@@ -76,7 +76,7 @@
 
     // these are totally arbitrary symbols, 
     // chose them so they aren't 0-5, which is confusing.
-    const defaultSymbolLibraryIndices = [0,5,10,15, 20];
+    const defaultSymbolLibraryIndices = [4,9,14,19, 24];
 
     for (let i = 0; i < colors.length; ++i) {
 
@@ -627,12 +627,14 @@
       activeKeySymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
 
       // if active: deactivate
-      cons: indexInSymbolLibrary = e.target.dataset.symbolIndex;
+      const indexInSymbolLibrary = e.target.dataset.symbolIndex;
       const isActive = e.target.classList.contains('active');
       if (isActive) {
-        activeSymbolLibraryIndex = null;
         activeKeySymbolIndex = null;
+        activeSymbolLibraryIndex = null;
         symbolLibrarySelectionInProgress = false;
+        e.target.classList.remove('active');
+        symbolLibrary.children[indexInSymbolLibrary].classList.remove('active');
       } else {
       // if inactive: activate
         activeSymbolLibraryIndex = indexInSymbolLibrary;;
