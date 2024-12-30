@@ -1,23 +1,3 @@
-// bug: when i change symbol for a given color from an existing one to a new one,
-// all active squares in pegboard change to that symbol, but the colors remain correct
-// and unchanged. check onSymbolLibraryClick func. roughly line 583
-//
-/*
- * TODO: 
- *
- * notes on UI behavior:
- *
- * symbol selection mode:
- * when you activate a symbol for reselection, corresponding
- * symbol in library lights up.  click on another library symbol
- * in that mode moves the active symbol to that symbol as long
- * as the active symbol is highlighted in the symbol key area.
- *
- * when a symbol is selected (the highlighted symbol square in the library 
- * changes), update the symbol and color keys, plus the board and save new state.
- * a lot of updates there.
- *
- */
 (function Pegboard() {
 
   // static config values
@@ -111,7 +91,7 @@
 
     drawPegboard(currentPegboard);
     initPegboardSelect(appData, currentPegboard);
-    initSymbolLibrary(symbolLibrary, symbolTable, currentPegboard.keyMap);
+    initSymbolLibrary(symbolLibrary, symbolTable, colorTable, currentPegboard.keyMap);
     initKeyColors(keyColorSquares, currentPegboard.keyMap, colorTable);
     initKeySymbols(keySymbolSquares, currentPegboard.keyMap, symbolTable, colorTable);
 
@@ -469,15 +449,16 @@
 
   }
 
-  function initSymbolLibrary(parentEl, symbolTable, keyMap) {
+  function initSymbolLibrary(parentEl, symbolTable, colorTable, keyMap) {
 
     const symbolGridMarkup = symbolTable.map((symbol, index) => {
 
       const active = index in keyMap.s;
+      const colorClass = active ? colorTable[keyMap.s[index]] : '';
 
       return `
         <li 
-          class="symbol ${active ? 'selected' : ''}" 
+          class="symbol ${active ? 'selected' : ''} ${colorClass}" 
           data-symbol="${symbol}"
           data-symbol-index="${index}"
         >${symbol}</li>
@@ -580,15 +561,18 @@
       return;
     }
 
+
     const symbolSquares = [...symbolLibrarySymbols];
     const newActiveSymbolLibraryIndex = symbolSquares.indexOf(symbolSquare);
     const oldActiveSymbolLibraryIndex = activeSymbolLibraryIndex; 
 
     // remove existing active/selected item
     symbolSquares[oldActiveSymbolLibraryIndex].classList.remove('selected');
+    symbolSquares[oldActiveSymbolLibraryIndex].classList.remove('active');
 
     // light up new active/selected.
     symbolSquares[newActiveSymbolLibraryIndex].classList.add('selected');
+    symbolSquares[newActiveSymbolLibraryIndex].classList.add('active');
 
     // update keymap bidirectional color-symbol connection
     delete currentPegboard.keyMap.s[oldActiveSymbolLibraryIndex]; 
