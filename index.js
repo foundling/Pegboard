@@ -1,7 +1,3 @@
-// TODO:
-// cases when active symbol key should be deactivated:
-// - when switching active key color
-// - when clicking outside of symbol library.
 (function Pegboard() {
 
   // static config values
@@ -62,8 +58,7 @@
       c: {}
     };
 
-    // these are totally arbitrary symbols,
-    // chose them so they aren't 0-5, which is confusing.
+    // NOTE: arbitrary indices 
     const defaultSymbolLibraryIndices = [4,9,14,19, 24];
 
     for (let i = 0; i < colors.length; ++i) {
@@ -87,8 +82,6 @@
   function initApp() {
 
 
-    // TODO: store keymap in pegboard record, include in CRUD cycle.
-
     const appData = loadAppFromLocalStorage() || initStorage();
     currentPegboard = findLastTouched(appData);
     pegboardNameInput.value = currentPegboard.name;
@@ -99,9 +92,7 @@
     initKeyColors(keyColorSquares, currentPegboard.keyMap, colorTable);
     initKeySymbols(keySymbolSquares, currentPegboard.keyMap, symbolTable, colorTable);
 
-    // TODO: clean this 'active' logic up, separating logic from event handler. 
-    setActiveColorIndex(currentPegboard.keyMap, 0);
-    activeKeySymbolIndex = 0;
+    setActiveKeyColor(0);
 
     setViewMode(viewMode);
 
@@ -129,10 +120,10 @@
 
     const squareIndex = [...pegboardSquares].indexOf(e.target);
 
-    // toggle previously selected square off
     if (element.dataset.colorIndex == colorIndex &&
         element.dataset.symbolIndex == symbolIndex) {
 
+      // toggle previously selected square off
       delete element.dataset.colorIndex;
       delete element.dataset.color;
       delete element.dataset.symbolIndex;
@@ -142,6 +133,7 @@
       delete currentPegboard.squares[squareIndex];
 
     } else {
+
       // set new square
       element.dataset.colorIndex = colorIndex;
       element.dataset.color = colorTable[colorIndex];
@@ -158,12 +150,10 @@
 
   }
 
-
   function onMouseOver(e) {
 
     const isPegboardSquare = e.target.classList.contains('pegboard-square');
 
-    // TODO: simplify this 'if else'
     if (isPegboardSquare && mouseDown) {
 
       const element = e.target;
@@ -197,8 +187,6 @@
 
       }
 
-    } else if (!isPegboardSquare && mouseDown) {
-      mouseDown = false;
     }
 
   }
@@ -206,9 +194,12 @@
 
   function onMouseUp(e) {
 
-    mouseDown = false;
+    if (mouseDown) {
 
-    savePegboard(currentPegboard);
+      savePegboard(currentPegboard);
+      mouseDown = false;
+
+    }
 
   }
 
@@ -235,6 +226,21 @@
 
   }
 
+  function onExport(e) {
+    const exportData = {
+      [APP_STORAGE_KEY]: loadAppFromLocalStorage()
+    };
+    const blob = new Blob(
+      [JSON.stringify(exportData, null, 2)],
+      { content: 'application/json' }
+    );
+    const url = URL.createObjectURL(blob);
+    e.target.href=url;
+  }
+
+  function onImport(e) {
+    fileInput.click();
+  }
 
   function validatePegboardData(data) {
 
@@ -257,23 +263,6 @@
     return { result: true };
 
   }
-
-  function onImport(e) {
-    fileInput.click();
-  }
-
-  function onExport(e) {
-    const exportData = {
-      [APP_STORAGE_KEY]: loadAppFromLocalStorage()
-    };
-    const blob = new Blob(
-      [JSON.stringify(exportData, null, 2)],
-      { content: 'application/json' }
-    );
-    const url = URL.createObjectURL(blob);
-    e.target.href=url;
-  }
-
 
   function onSave() {
     createPdf(currentPegboard.name);
@@ -396,6 +385,7 @@
   }
 
   function savePegboard(pegboardRecord) {
+    console.log('save');
 
     pegboardRecord.timestamp = Date.now();
     const currentAppData = loadAppFromLocalStorage();
@@ -419,6 +409,12 @@
     return JSON.parse(localStorage.getItem(APP_STORAGE_KEY));
 
   }
+
+  /*
+   *
+   * App Render Functions
+   *
+   */
 
   function initKeyColors(keyColorSquares, keyMap, colorTable) {
 
@@ -493,12 +489,6 @@
 
   }
 
-
-  /*
-   * UI Functions
-   * TODO: put on[FuncName] handlers here.
-   */
-  // toggle color / symbol view mode.
 
   function onViewModeChange(e) {
 
@@ -576,7 +566,6 @@
       }
 
     });
-    // TODO: update squares
     savePegboard(currentPegboard);
 
     // rerender keymap ui dependents
@@ -588,9 +577,6 @@
 
     // update active symbol library index
     activeSymbolLibraryIndex = newActiveSymbolLibraryIndex;
-
-
-    //TODO: maybe set bg color in symbol library to actual color
 
   }
 
@@ -608,12 +594,13 @@
     const keyItemIndex = /color-(.*)/.exec(e.target.id)?.[1];
 
     // update ui w/ new selection
-    setActiveColorIndex(currentPegboard.keyMap, keyItemIndex);
+    setActiveKeyColor(keyItemIndex);
 
   }
 
-  // when a color palette item is clicked, highlight and set to active color
-  function setActiveColorIndex(keyMap, colorIndex) {
+  // when a color palette item is clicked, highlight associated symbol
+  // and set to active color in key and symbol library
+  function setActiveKeyColor(colorIndex) {
 
     const colorSquare = document.getElementById(`color-${colorIndex}`);
     const keySymbolEl = document.getElementById(`symbol-${colorIndex}`);
@@ -631,7 +618,7 @@
     symbolLibrary.children[keySymbolEl.dataset.symbolIndex].classList.add('active');
 
     // deactivate old color
-    if (activeColorIndex != null) { // NOTE: intentional ==
+    if (activeColorIndex != null) {
       document.getElementById(`color-${activeColorIndex}`).classList.remove('active');
     }
 
@@ -666,6 +653,7 @@
     switchPegboard(e.target.value);
 
   }
+
 
   function switchPegboard(pegboardId) {
 
@@ -762,19 +750,8 @@
   importButton.addEventListener('click', onImport);
   fileInput.addEventListener('change', onFileSelect);
   pegboard.addEventListener('mousedown', onMouseDown);
-  pegboard.addEventListener('mouseup', onMouseUp);
   document.body.addEventListener('mouseover', onMouseOver);
-  document.body.addEventListener('click', () => console.log(
-    JSON.stringify({
-      currentPegboard,
-      activeColorIndex,
-      activeKeySymbolIndex,
-      activeSymbolLibraryIndex,
-      currentPegboard,
-      viewMode,
-      mouseDown
-    }, null, 2)
-  ));
+  document.body.addEventListener('mouseup', onMouseUp);
 
   newPegboardButton.addEventListener('click', createNewPegboard);
   clearPegboardButton.addEventListener('click', clearPegboard);
