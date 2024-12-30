@@ -1,3 +1,7 @@
+// bug: when i change symbol for a given color from an existing one to a new one,
+// all active squares in pegboard change to that symbol, but the colors remain correct
+// and unchanged. check onSymbolLibraryClick func. roughly line 583
+//
 /*
  * TODO: 
  *
@@ -595,7 +599,13 @@
       if (!currentPegboard.squares[squareIndexKey]) {
         return;
       }
-      currentPegboard.squares[squareIndexKey].symbolIndex = newActiveSymbolLibraryIndex;
+      // BUG: only reset symbolIndex if matches what square had.
+      // find only the squares where previous symbolLibraryIndex matches what we have for this square
+      // and update it to the new index.
+      if (oldActiveSymbolLibraryIndex == currentPegboard.squares[squareIndexKey].symbolIndex) { 
+        currentPegboard.squares[squareIndexKey].symbolIndex = newActiveSymbolLibraryIndex;
+      }
+
     });
     // TODO: update squares
     savePegboard(currentPegboard);
