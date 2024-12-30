@@ -1,4 +1,4 @@
-// TODO: 
+// TODO:
 // cases when active symbol key should be deactivated:
 // - when switching active key color
 // - when clicking outside of symbol library.
@@ -32,7 +32,7 @@
   const symbolLibrarySymbols = symbolLibrary.getElementsByClassName('symbol');
 
 
-  // Menu + Pegboard Controls  UI 
+  // Menu + Pegboard Controls  UI
   const loadButton = document.getElementById('load-button');
   const pegboardSelect = document.getElementById('pegboard-select')
   const pegboardNameInput = document.getElementById('pegboard-name-input');
@@ -63,13 +63,13 @@
       c: {}
     };
 
-    // these are totally arbitrary symbols, 
+    // these are totally arbitrary symbols,
     // chose them so they aren't 0-5, which is confusing.
     const defaultSymbolLibraryIndices = [4,9,14,19, 24];
 
     for (let i = 0; i < colors.length; ++i) {
 
-      const symbolLibraryIndex = defaultSymbolLibraryIndices[i];  
+      const symbolLibraryIndex = defaultSymbolLibraryIndices[i];
 
       keyMap.s[symbolLibraryIndex] = i;
       keyMap.c[i] = symbolLibraryIndex;
@@ -106,10 +106,10 @@
   }
 
 
-  /* 
+  /*
    * pegboard selection ui logic
    *
-   */ 
+   */
 
   function onMouseDown(e) {
 
@@ -125,10 +125,10 @@
     const colorIndex = activeColorIndex;
     const symbolIndex = currentPegboard.keyMap.c[activeColorIndex];
 
-    const squareIndex = [...pegboardSquares].indexOf(e.target); 
+    const squareIndex = [...pegboardSquares].indexOf(e.target);
 
     // toggle previously selected square off
-    if (element.dataset.colorIndex == colorIndex && 
+    if (element.dataset.colorIndex == colorIndex &&
         element.dataset.symbolIndex == symbolIndex) {
 
       delete element.dataset.colorIndex;
@@ -136,7 +136,7 @@
       delete element.dataset.symbolIndex;
       element.innerHTML = '';
 
-      // unset this square's data in model 
+      // unset this square's data in model
       delete currentPegboard.squares[squareIndex];
 
     } else {
@@ -161,16 +161,16 @@
 
     const isPegboardSquare = e.target.classList.contains('pegboard-square');
 
-    // TODO: simplify this 'if else' 
+    // TODO: simplify this 'if else'
     if (isPegboardSquare && mouseDown) {
 
       const element = e.target;
       const colorIndex = activeColorIndex;
       const symbolIndex = currentPegboard.keyMap.c[activeColorIndex];
-      const squareIndex = [...pegboardSquares].indexOf(e.target); 
+      const squareIndex = [...pegboardSquares].indexOf(e.target);
 
       // toggle previously selected square off
-      if (element.dataset.colorIndex == colorIndex && 
+      if (element.dataset.colorIndex == colorIndex &&
           element.dataset.symbolIndex == symbolIndex) {
 
         delete element.dataset.colorIndex;
@@ -178,7 +178,7 @@
         delete element.dataset.symbolIndex;
         element.innerHTML = '';
 
-        // unset this square's data in model 
+        // unset this square's data in model
         delete currentPegboard.squares[squareIndex];
 
       } else {
@@ -307,7 +307,7 @@
 
   }
 
- 
+
   /*
    * Storage Functions
    */
@@ -342,7 +342,7 @@
 
   function resetAppData() {
 
-    localStorage.removeItem('pegboard'); 
+    localStorage.removeItem('pegboard');
 
     initApp();
 
@@ -368,7 +368,7 @@
     return appData;
 
   }
-  
+
   function importPegboardDatabase(data) {
 
     localStorage.setItem(
@@ -383,7 +383,7 @@
   function loadPegboardById(pegboardId) {
 
     const appData = loadAppFromLocalStorage();
-    const newPegboard = appData[pegboardId]; 
+    const newPegboard = appData[pegboardId];
 
     return newPegboard;
 
@@ -442,11 +442,10 @@
     const symbolGridMarkup = symbolTable.map((symbol, index) => {
 
       const active = index in keyMap.s;
-      const colorClass = active ? colorTable[keyMap.s[index]] : '';
 
       return `
-        <li 
-          class="symbol ${active ? 'selected' : ''} ${colorClass}" 
+        <li
+          class="symbol ${active ? 'selected' : ''}"
           data-symbol="${symbol}"
           data-symbol-index="${index}"
         >${symbol}</li>
@@ -463,12 +462,12 @@
   function drawPegboard(record) {
 
     const keyMap = record.keyMap;
-    const squares = [...pegboardSquares]; 
+    const squares = [...pegboardSquares];
 
     squares.forEach((el, index) => {
 
       //const oldColorIndex = el.dataset.colorIndex;
-      const squareData = record.squares[index]; 
+      const squareData = record.squares[index];
       // reminder .squares is not an array, it's an obj with index-looking keys.
 
       // for each grid element, populate with saved data
@@ -552,7 +551,7 @@
 
     const symbolSquares = [...symbolLibrarySymbols];
     const newActiveSymbolLibraryIndex = symbolSquares.indexOf(symbolSquare);
-    const oldActiveSymbolLibraryIndex = activeSymbolLibraryIndex; 
+    const oldActiveSymbolLibraryIndex = activeSymbolLibraryIndex;
 
     // remove existing active/selected item
     symbolSquares[oldActiveSymbolLibraryIndex].classList.remove('selected');
@@ -563,7 +562,7 @@
     symbolSquares[newActiveSymbolLibraryIndex].classList.add('active');
 
     // update keymap bidirectional color-symbol connection
-    delete currentPegboard.keyMap.s[oldActiveSymbolLibraryIndex]; 
+    delete currentPegboard.keyMap.s[oldActiveSymbolLibraryIndex];
     currentPegboard.keyMap.c[activeKeySymbolIndex] = newActiveSymbolLibraryIndex;
     currentPegboard.keyMap.s[newActiveSymbolLibraryIndex] = activeKeySymbolIndex;
 
@@ -574,7 +573,7 @@
       // BUG: only reset symbolIndex if matches what square had.
       // find only the squares where previous symbolLibraryIndex matches what we have for this square
       // and update it to the new index.
-      if (oldActiveSymbolLibraryIndex == currentPegboard.squares[squareIndexKey].symbolIndex) { 
+      if (oldActiveSymbolLibraryIndex == currentPegboard.squares[squareIndexKey].symbolIndex) {
         currentPegboard.squares[squareIndexKey].symbolIndex = newActiveSymbolLibraryIndex;
       }
 
@@ -604,8 +603,8 @@
       const colorIndex = /color-(.*)/.exec(e.target.id)?.[1];
       setActiveColorIndex(currentPegboard.keyMap, colorIndex);
 
-    } else if (e.target.classList.contains('key-symbol-square')) { 
-      
+    } else if (e.target.classList.contains('key-symbol-square')) {
+
       activeKeySymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
 
       // if active: deactivate
@@ -720,7 +719,7 @@
   function clearPegboard() {
 
     // save pegboard with empty squares obj
-    currentPegboard.squares = {}; 
+    currentPegboard.squares = {};
     savePegboard(currentPegboard);
 
     initApp();
@@ -759,7 +758,7 @@
   }
 
   /*
-   * bind events 
+   * bind events
    *
    */
 
@@ -767,7 +766,7 @@
   symbolLibrary.addEventListener('click', onSymbolLibraryClick);
   pegboardNameInput.addEventListener('change', onPegboardNameChange);
   pegboardSelect.addEventListener('change', onPegboardSelectChange);
-  viewModeSelector.addEventListener('change', onViewModeChange); 
+  viewModeSelector.addEventListener('change', onViewModeChange);
   saveButton.addEventListener('click', onSave);
   exportButton.addEventListener('click', onExport);
   importButton.addEventListener('click', onImport);
@@ -775,7 +774,7 @@
   pegboard.addEventListener('mousedown', onMouseDown);
   pegboard.addEventListener('mouseup', onMouseUp);
   document.body.addEventListener('mouseover', onMouseOver);
-  document.body.addEventListener('click', () => console.log( 
+  document.body.addEventListener('click', () => console.log(
     JSON.stringify({
       currentPegboard,
       activeColorIndex,
