@@ -598,40 +598,42 @@
 
   function onKeyClick(e) {
 
-    if (e.target.classList.contains('key-color-square')) {
+    // ux: when we click on a color, activate associated symbol square in the key
+    // and in the symbol library.
+    //
+    // deactivate any other color/symbol pairs.
 
-      const colorIndex = /color-(.*)/.exec(e.target.id)?.[1];
-      setActiveColorIndex(currentPegboard.keyMap, colorIndex);
+    if (!e.target.classList.contains('key-color-square')) {
+      return;
+    }
 
-    } else if (e.target.classList.contains('key-symbol-square')) {
+    const keyItemIndex = /color-(.*)/.exec(e.target.id)?.[1];
+    const keySymbolEl = document.getElementById(`symbol-${keyItemIndex}`);
+    const indexInSymbolLibrary = keySymbolEl.dataset.symbolIndex;
 
-      activeKeySymbolIndex = /symbol-(.*)/.exec(e.target.id)?.[1];
 
-      // if active: deactivate
-      const indexInSymbolLibrary = e.target.dataset.symbolIndex;
-      const isActive = e.target.classList.contains('active');
-      if (isActive) {
-        activeKeySymbolIndex = null;
-        activeSymbolLibraryIndex = null;
-        symbolLibrarySelectionInProgress = false;
-        e.target.classList.remove('active');
-        symbolLibrary.children[indexInSymbolLibrary].classList.remove('active');
+    // update ui w/ new selection
+    setActiveColorIndex(currentPegboard.keyMap, keyItemIndex);
+    activeKeySymbolIndex = keyItemIndex;
+    activeSymbolLibraryIndex = indexInSymbolLibrary;
+
+    keySymbolSquares.forEach(el => {
+
+      if (el === keySymbolEl) {
+
+        el.classList.add('active');
+        symbolLibrary.children[el.dataset.symbolIndex].classList.add('active');
+
       } else {
-      // if inactive: activate
-        activeSymbolLibraryIndex = indexInSymbolLibrary;;
-        keySymbolSquares.forEach(el => {
-          if (el === e.target) {
-            el.classList.add('active');
-            symbolLibrary.children[el.dataset.symbolIndex].classList.add('active');
-          } else {
-            el.classList.remove('active');
-            symbolLibrary.children[el.dataset.symbolIndex].classList.remove('active');
-          }
-        });
-        symbolLibrarySelectionInProgress = true;
+
+        el.classList.remove('active');
+        symbolLibrary.children[el.dataset.symbolIndex].classList.remove('active');
+
       }
 
-    }
+    });
+
+    symbolLibrarySelectionInProgress = true;
 
   }
 
