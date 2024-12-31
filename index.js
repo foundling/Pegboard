@@ -500,14 +500,15 @@
 
   }
 
-  function setViewMode(newViewMode) {
+  function setViewMode(mode) {
 
-    viewMode = newViewMode;
-    pegboardContainer.classList.toggle('color-mode', newViewMode === 'color');
-    pegboardContainer.classList.toggle('symbol-mode', newViewMode === 'symbol');
+    viewMode = mode;
+
+    pegboardContainer.classList.toggle('color-mode', mode === 'color');
+    pegboardContainer.classList.toggle('symbol-mode', mode === 'symbol');
 
     viewModeSelector.querySelectorAll('input').forEach(el => {
-      el.checked = el.value === newViewMode;
+      el.checked = el.value === mode;
     });
 
 
