@@ -234,8 +234,8 @@ html, body * {
   display: none;
 }
 
-.print-container .pegboard-symbol-and-key-container {
-  display: none;
+.print-container #symbol-library {
+  visibility: hidden;
 }
 .print-container > .pegboard-container {
   zoom: 1.2;
