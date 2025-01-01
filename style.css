@@ -237,6 +237,14 @@ html, body * {
 .print-container #symbol-library {
   visibility: hidden;
 }
+
+.print-container .key-symbol-square.active {
+  background: initial;
+}
+
+.print-container .color-mode .pegboard-key-container {
+  visibility: hidden;
+}
 .print-container > .pegboard-container {
   zoom: 1.2;
   margin: 200px 130px 0px 150px; 
