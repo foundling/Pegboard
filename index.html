@@ -8,47 +8,53 @@
   <body>
     <div class="pegboard-app">
 
-      <div class="pegboard-actions">
-        <button id="new-pegboard">new</button>
-        <button id="copy-pegboard">copy</button>
-        <button id="clear-pegboard">clear squares</button>
-        <button id="reset-database">reset app data</button>
-        <button id="save-button">download</button>
-        <button id="import-button">import</button>
-        <input type="file" id="file-input" accept="application/json">
-        <button>
-        <a id="download-link"
-           download="pegboard-download.json">export
-        </a>
-        </button>
-      </div>
-      <div class="pegboard-list">
-        <label for="pegboard-select">Pegboards: </label>
-        <select name="pegboard" id="pegboard-select"></select>
-      </div>
+      <div class="app-controls">
+        <div class="pegboard-actions">
+          <div>
+            <button id="new-pegboard">new</button>
+            <button id="copy-pegboard">copy</button>
+            <button id="clear-pegboard">clear squares</button>
+          </div>
+          <div>
+            <button id="reset-database">reset app data</button>
+            <button id="save-button">download</button>
+            <button id="import-button">import</button>
+            <input type="file" id="file-input" accept="application/json">
+            <button>
+              <a id="download-link"
+                 download="pegboard-download.json">export
+              </a>
+            </button>
+          </div>
+        </div>
+        <div class="pegboard-list">
+          <label for="pegboard-select">Pegboards: </label>
+          <select name="pegboard" id="pegboard-select"></select>
+        </div>
 
-      <div class="view-mode-selector">
-          <label>View:</label>
-          <input
-            type="radio"
-            name="pegboard-mode-selector"
-            value="color"
-            checked>color
-          <input
-            type="radio"
-            name="pegboard-mode-selector"
-            value="symbol">symbol
-          <input
-            type="radio"
-            name="pegboard-mode-selector"
-            value="color&symbol">color & symbol
-      </div>
+        <div class="view-mode-selector">
+            <label>View:</label>
+            <input
+              type="radio"
+              name="pegboard-mode-selector"
+              value="color"
+              checked>color
+            <input
+              type="radio"
+              name="pegboard-mode-selector"
+              value="symbol">symbol
+            <input
+              type="radio"
+              name="pegboard-mode-selector"
+              value="color&symbol">color & symbol
+        </div>
 
-      <div class="pegboard-name">
-        <label for="pegboard-name-input">Name:</label>
-        <input type="text" id="pegboard-name-input">
-      </div>
+        <div class="pegboard-name">
+          <label for="pegboard-name-input">Name:</label>
+          <input type="text" id="pegboard-name-input">
+        </div>
 
+      </div>
       <div class="pegboard-container">
         <div class="pegboard">
           <div class="pegboard-square"></div>

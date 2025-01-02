@@ -22,6 +22,15 @@ html, body * {
   font-family: sans-serif;
 }
 
+.pegboard-actions > div {
+  margin-bottom: 10px;
+}
+
+.app-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+}
 .pegboard-app {
   width: 600px;
   height: 600px;
@@ -271,4 +280,40 @@ html, body * {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media(max-width: 600px) {
+  .pegboard-app {
+    width: 100%;
+  }
+  .pegboard-symbol-and-key-container {
+    display: flex;
+    flex-direction: row;
+    margin-left: 0px;
+  }
+
+  .pegboard-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #symbol-library,
+  .pegboard-key-container {
+    width: 150px;
+  }
+  .pegboard-app {
+    height: auto;
+  }
+
+  .app-controls {
+    align-items: center;
+  }
+  .pegboard-key-title {
+    width: 60px;
+  }
+  .pegboard {
+    margin 0 auto;
+  }
 }
