@@ -1,6 +1,6 @@
 function zip(a,b) {
 
-  const length = Math.min(a.length,b.length);
+  const length = Math.min(a.length, b.length);
   const pairs = [];
 
   for (let i = 0; i < length; i++) { 
@@ -14,16 +14,23 @@ function zip(a,b) {
 
 }
 
-class BaseNode {
+class Component {
 
-  constructor({ className, children, events, data }) {
+  constructor({ className, children, events, data, render }) {
 
     this.data = data || {};
     this.children = children;
     this.events = events || {};
 
+    if (render) {
+      this.render = render;
+    }
+
     this.el = document.createElement('div');
     this.el.classList.add(className);
+
+    this.render(this.el, data);
+    this.bindEvents();
 
   }
 
@@ -32,7 +39,15 @@ class BaseNode {
     const eventNames = Object.keys(this.events); 
 
     eventNames.forEach(name => {
-      this.el.addEventListener(name, this.events[name]);
+
+      const originalFunction = this.events[name];
+
+      const wrappedHandler = (e) => {
+        return originalFunction(e, this.data, this);
+      }
+
+      this.el.addEventListener(name, wrappedHandler);
+
     });
 
   }
@@ -57,124 +72,6 @@ class BaseNode {
 
 }
 
-class Grid extends BaseNode {
-
-  constructor({ children, events, data }) {
-
-    super({ className: 'grid', data, events, children });
-
-    this.render();
-    this.bindEvents();
-
-  }
-
-}
-
-class Library extends BaseNode {
-
-  constructor({ children, events, data }) {
-
-    super({ className: 'library', children, events, data });
-
-    this.render();
-    this.bindEvents();
-
-  }
-
-}
-
-class LibraryItem extends BaseNode {
-
-  constructor({ children, events, data }) {
-
-    super({ className: 'library-item', children, events, data })
-
-    this.render();
-    this.bindEvents();
-
-  }
-
-  render() {
-    this.el.insertAdjacentHTML('beforeend', `
-      <div>${this.data.symbol}</div>
-    `);
-  }
-
-}
-
-class KeyItem extends BaseNode {
-
-  constructor({ events, data }) {
-
-    super({ className: 'key-item', events, data });
-
-    this.render();
-    this.bindEvents();
-
-  }
-
-  render() {
-
-    this.el.insertAdjacentHTML('beforeend', `
-      <div class="key-color ${this.data.color}"></div>
-      <div class="key-symbol">${this.data.library[this.data.symbolIndex]}</div>
-    `);
-
-  }
-
-}
-
-
-class GridItem extends BaseNode {
-
-  constructor({ color, symbol, events, data }) {
-
-    super({ className: 'grid-item', events, data })
-
-    this.render();
-    this.bindEvents();
-
-  }
-
-  render() {
-
-    this.removeChildren();
-
-    this.el.insertAdjacentHTML('beforeend', `
-      <div class="color-view ${this.data.color}"></div>
-      <div class="symbol-view">${this.data.symbol}</div>
-    `);
-
-  }
-
-}
-
-class Key extends BaseNode {
-
-  constructor({ children, events, data }) {
-
-    super({ className: 'key', children, events, data });
-
-    this.render();
-    this.bindEvents();
-
-  }
-
-}
-
-class App extends BaseNode {
-
-  constructor({ children, events, data }) {
-
-    super({ className: 'app', events, children, data });
-
-    this.render();
-    this.bindEvents();
-
-  }
-
-}
-
 const colorTable = [ 'white', 'red', 'yellow', 'green', 'blue' ];
 const symbolTable = [
   '&#9722;', '&#8679;',  '&#9672;', '&#9826;', '&#9873;',
@@ -185,30 +82,54 @@ const symbolTable = [
 ];
 
 const gridItems = [...Array(100)].map(() => {
-  return new GridItem({
+
+  return new Component({
+    className: 'grid-item',
     data: {
       color: 'white',
       symbol: 'x',
+      viewMode: 'color',
     },
     events: {
-      click: (e) => {
-        console.log('grid item');
+      click: (e, data, thisVal) => {
+        console.log(e);
+        if (data.viewMode === 'color') {
+          data.viewMode === 'symbol';
+        } else {
+          data.viewMode === 'color';
+        }
       }
+    },
+    render(el, data) {
+      el.insertAdjacentHTML('beforeend', `
+        <div class="color-view ${data.color}"></div>
+        <div class="symbol-view">${data.symbol}</div>
+      `);
     }
   });
+
 });
 
-const libraryItems = symbolTable.map((symbol) => new LibraryItem({
+const libraryItems = symbolTable.map((symbol) => new Component({
+  className: 'library-item',
   data: { 
     symbol
   },
   events: {
     click: e => console.log('library item')
   },
-  children: [symbol]
+  children: [symbol],
+  render: function(el, data) {
+
+    el.insertAdjacentHTML('beforeend', `
+      <div>${data.symbol}</div>
+    `);
+
+  }
 }));
 
-const library = new Library({
+const library = new Component({
+  className: 'library',
   children: libraryItems,
   events: {
     click: e => {
@@ -218,49 +139,44 @@ const library = new Library({
 });
 
 
-const keyItems = zip(colorTable,[0, 8, 16, 20, 22]).map(([color, symbolIndex]) => (new KeyItem({
+const keyItems = zip(colorTable,[0, 8, 16, 20, 22]).map(([color, symbolIndex]) => new Component({
+    className: 'key-item',
     data: {
       color,
       symbolIndex,
       library: symbolTable.slice(),
     },
-    events: {
-      click: e => {
-        console.log('key item');
-      }
-    },
-  }))
+    render(el, data) {
+
+      el.insertAdjacentHTML('beforeend', `
+        <div class="key-color ${data.color}"></div>
+        <div class="key-symbol">${data.library[data.symbolIndex]}</div>
+      `);
+
+    }
+  })
 );
 
-const key = new Key({ 
-
+const key = new Component({ 
+  className: 'key',
   children: keyItems,
   data: {
     colorTable,
   }
-
 });
 
-const grid = new Grid({
-  children: gridItems,
-  events: {
-    click: e => { console.log('grid') } 
-  }
+const grid = new Component({
+  className: 'grid',
+  children: gridItems
 });
 
-const app = new App({ 
-
+const app = new Component({ 
+  className: 'app',
   children: [
     grid,
     key,
     library
-  ],
-  events: {
-    mouseup: function(e) {
-      console.log('mouse up');
-    }
-  }
-
+  ]
 });
 
 document.body.appendChild(app.el);
