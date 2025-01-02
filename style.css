@@ -4,6 +4,10 @@
   display: grid;
 }
 
+body {
+  user-select: none;
+}
+
 .grid {
   grid-template-columns: repeat(10, 30px);
   grid-template-rows: repeat(10, 30px);
@@ -16,3 +20,25 @@
   grid-template-columns: repeat(1, 30px);
   grid-template-rows: repeat(5, 30px);
 }
+
+.grid-item {
+  border: 1px solid black;
+}
+
+.grid-item.active {
+  
+}
+
+.grid-item:not(.active) {
+}
+
+.grid-item[data-view-mode="color"] {
+}
+.grid-item[data-view-mode="color"][data-color="red"] {
+}
+
+.grid-item[data-view-mode="symbol"] {
+  background: lightgray;
+}
+
+

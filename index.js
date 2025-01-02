@@ -86,25 +86,29 @@ const gridItems = [...Array(100)].map(() => {
   return new Component({
     className: 'grid-item',
     data: {
-      color: 'white',
+      color: 'red',
       symbol: 'x',
       viewMode: 'color',
+      active: false,
     },
     events: {
       click: (e, data, thisVal) => {
-        console.log(e);
-        if (data.viewMode === 'color') {
-          data.viewMode === 'symbol';
-        } else {
-          data.viewMode === 'color';
-        }
+        data.active = !data.active;
+        thisVal.render(thisVal.el, data);
       }
     },
     render(el, data) {
-      el.insertAdjacentHTML('beforeend', `
-        <div class="color-view ${data.color}"></div>
-        <div class="symbol-view">${data.symbol}</div>
-      `);
+
+      el.dataset.viewMode = data.viewMode;
+      el.dataset.color = data.color;
+
+      el.classList.toggle('active', data.active);
+      this.removeChildren();
+
+      if (data.active) {
+        el.insertAdjacentHTML('beforeend', `${data.symbol}`);
+      } 
+
     }
   });
 
@@ -130,16 +134,12 @@ const libraryItems = symbolTable.map((symbol) => new Component({
 
 const library = new Component({
   className: 'library',
-  children: libraryItems,
-  events: {
-    click: e => {
-      console.log('library')
-    }
-  }
+  children: libraryItems
 });
 
 
-const keyItems = zip(colorTable,[0, 8, 16, 20, 22]).map(([color, symbolIndex]) => new Component({
+const colorSymbolPairs = zip(colorTable,[0, 8, 16, 20, 22]);
+const keyItems = colorSymbolPairs.map(([color, symbolIndex]) => new Component({
     className: 'key-item',
     data: {
       color,
@@ -172,11 +172,7 @@ const grid = new Component({
 
 const app = new Component({ 
   className: 'app',
-  children: [
-    grid,
-    key,
-    library
-  ]
+  children: [ grid, key, library ]
 });
 
 document.body.appendChild(app.el);
