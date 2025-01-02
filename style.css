@@ -17,7 +17,7 @@ body {
   grid-template-rows: repeat(5, 30px);
 }
 .key {
-  grid-template-columns: repeat(1, 30px);
+  grid-template-columns: repeat(1, 60px);
   grid-template-rows: repeat(5, 30px);
 }
 
@@ -30,6 +30,7 @@ body {
 }
 
 .grid-item:not(.active) {
+  background:lightgray;
 }
 
 .grid-item[data-view-mode="color"] {
@@ -42,3 +43,40 @@ body {
 }
 
 
+.key-item {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+}
+
+.key-item > .key-color.red {
+  background: red;
+}
+.key-item > .key-color.blue {
+  background: blue;
+}
+.key-item > .key-color.green {
+  background: green;
+}
+.key-item > .key-color.yellow {
+  background: yellow;
+}
+.key-item > .key-color.white {
+  background: white;
+}
+.key-item > .key-symbol,
+.key-item > .key-color {
+  box-sizing: border-box;
+  border: 1px solid black;
+  width: 30px;
+  height: 30px;
+}
+.key-item > .key-symbol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.key-item.active {
+  border: 3px solid black;
+}
