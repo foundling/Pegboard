@@ -14,199 +14,253 @@ function zip(a,b) {
 
 }
 
-class Grid {
+class BaseNode {
 
-  constructor(name, items, id) {
-    this.name = name;
-    this.id = id;
-    this.items = items;
-    this.el = null;
-  }
+  constructor({ className, children, events, data }) {
 
-  render() {
+    this.data = data || {};
+    this.children = children;
+    this.events = events || {};
 
-    const itemsHTML = this.items.map(item => item.render()).join('\n');
-    const gridNode = document.createElement('div');
-
-    return `
-      <div class="grid">
-      ${ itemsHTML }
-      </div>
-    `;
+    this.el = document.createElement('div');
+    this.el.classList.add(className);
 
   }
 
-  _init() {
-    this.el = el;
-    const el = document.querySelector('.grid');
-  }
+  bindEvents() {
 
-  export() {
-    return {
-      key: this.key.export(),
-      items: this.items.map(item.export)
-    }
-  }
+    const eventNames = Object.keys(this.events); 
 
-}
-
-class GridItem {
-  constructor({ color, symbol }) {
-    this.color = color
-    this.symbol = symbol
-  }
-  render() {
-    return `
-      <div class="grid-item">
-        <div class="color-view ${this.color}"></div>
-        <div class="symbol-view">${this.symbol}</div>
-      </div>
-    `;
-  }
-  export() {
-    return {
-      symbol: this.symbol,
-      color: this.color
-    }
-  }
-}
-
-class Library {
-
-  constructor() {
-
-    this.library = [
-      '&#9722;', '&#8679;',  '&#9672;', '&#9826;', '&#9873;',
-      '&#9726;', '&#126;',   '&#35;',   '&#9711;', '&#61;',
-      '&#33;',   '&#8258;',  '&#8251;', '&#8864;', '&#8896;',
-      '&#9885;', '&#10047;', '&#8857;', '&#8709;', '&#9635;',
-      '&#9547;', '&#9214;',  '&#8681;', '&#9680;', '&#9650;'
-    ];
-
-    this.items = this.library.map(symbol => new LibraryItem(symbol))
- 
-  }
-
-  render() {
-    return `
-      <div class="library">
-        ${this.items.map(item => item.render()).join('\n')}
-      </div>
-    `;
-  }
-
-  export() {
-    return this.library.slice();
-  }
-
-
-}
-
-class LibraryItem {
-
-  constructor(symbol) {
-    this.symbol = symbol;
-  }
-
-  render() {
-    return `
-      <div class="library-item">
-        ${this.symbol}
-      </div>
-    `;
-  }
-
-}
-
-class Key {
-
-  constructor({ colorTable, library }) {
-
-    const initialSymbolIndices = [0, 8, 16, 20, 22];
-
-    this.library = library;
-    this.colorTable = colorTable;
-    this.items = zip(this.colorTable, initialSymbolIndices).map(([color, symbolIndex]) => {
-      return new KeyItem({
-        color,
-        symbolIndex,
-        library: this.library
-      })
+    eventNames.forEach(name => {
+      this.el.addEventListener(name, this.events[name]);
     });
 
   }
 
   render() {
-    return `
-      <div class="key">
-        ${this.items.map(item => item.render()).join('\n')}
-      </div>
-    `;
+
+    this.removeChildren();
+
+    this.children.forEach(child => {
+      this.el.appendChild(child.el);
+    });
+
+  }
+
+  removeChildren() {
+
+    while (this.el.lastChild) {
+      this.el.removeChild(this.el.lastChild);
+    }
+
   }
 
 }
 
-class KeyItem {
+class Grid extends BaseNode {
 
-  constructor({ color, symbolIndex, library }) {
+  constructor({ children, events, data }) {
 
-    this.symbolIndex = symbolIndex;
-    this.color = color;
-    this.library = library;
+    super({ className: 'grid', data, events, children });
+
+    this.render();
+    this.bindEvents();
+
+  }
+
+}
+
+class Library extends BaseNode {
+
+  constructor({ children, events, data }) {
+
+    super({ className: 'library', children, events, data });
+
+    this.render();
+    this.bindEvents();
+
+  }
+
+}
+
+class LibraryItem extends BaseNode {
+
+  constructor({ children, events, data }) {
+
+    super({ className: 'library-item', children, events, data })
+
+    this.render();
+    this.bindEvents();
+
+  }
+
+  render() {
+    this.el.insertAdjacentHTML('beforeend', `
+      <div>${this.data.symbol}</div>
+    `);
+  }
+
+}
+
+class KeyItem extends BaseNode {
+
+  constructor({ events, data }) {
+
+    super({ className: 'key-item', events, data });
+
+    this.render();
+    this.bindEvents();
 
   }
 
   render() {
 
-    return `
-      <div class="key-item">
-        <div class="key-color ${this.color}"></div>
-        <div class="key-symbol">${this.library[this.symbolIndex]}</div>
-      </div>
-    `;
+    this.el.insertAdjacentHTML('beforeend', `
+      <div class="key-color ${this.data.color}"></div>
+      <div class="key-symbol">${this.data.library[this.data.symbolIndex]}</div>
+    `);
 
   }
 
 }
 
 
-class App {
+class GridItem extends BaseNode {
 
-  constructor({ grid, key, library }) {
+  constructor({ color, symbol, events, data }) {
 
-    this.grid = grid;
-    this.key = key;
-    this.library = library;
+    super({ className: 'grid-item', events, data })
+
+    this.render();
+    this.bindEvents();
 
   }
 
-  render(el) {
+  render() {
 
-    const appHTML = `
-      <div class="app-container">
-        ${this.library.render()}
-        ${this.key.render()}
-        ${this.grid.render()}
-      </div>
-    `
+    this.removeChildren();
 
-    el.insertAdjacentHTML('beforeend', appHTML);
+    this.el.insertAdjacentHTML('beforeend', `
+      <div class="color-view ${this.data.color}"></div>
+      <div class="symbol-view">${this.data.symbol}</div>
+    `);
 
   }
 
 }
+
+class Key extends BaseNode {
+
+  constructor({ children, events, data }) {
+
+    super({ className: 'key', children, events, data });
+
+    this.render();
+    this.bindEvents();
+
+  }
+
+}
+
+class App extends BaseNode {
+
+  constructor({ children, events, data }) {
+
+    super({ className: 'app', events, children, data });
+
+    this.render();
+    this.bindEvents();
+
+  }
+
+}
+
+const colorTable = [ 'white', 'red', 'yellow', 'green', 'blue' ];
+const symbolTable = [
+  '&#9722;', '&#8679;',  '&#9672;', '&#9826;', '&#9873;',
+  '&#9726;', '&#126;',   '&#35;',   '&#9711;', '&#61;',
+  '&#33;',   '&#8258;',  '&#8251;', '&#8864;', '&#8896;',
+  '&#9885;', '&#10047;', '&#8857;', '&#8709;', '&#9635;',
+  '&#9547;', '&#9214;',  '&#8681;', '&#9680;', '&#9650;'
+];
 
 const gridItems = [...Array(100)].map(() => {
   return new GridItem({
-    color: 'white',
-    symbol: 'x'
+    data: {
+      color: 'white',
+      symbol: 'x',
+    },
+    events: {
+      click: (e) => {
+        console.log('grid item');
+      }
+    }
   });
 });
 
-const library = new Library();
-const colorTable = [ 'white', 'red', 'yellow', 'green', 'blue' ];
-const key = new Key({ colorTable,  library: library.export() });
-const grid = new Grid('test', gridItems);
-const app = new App({ grid, key, library });
+const libraryItems = symbolTable.map((symbol) => new LibraryItem({
+  data: { 
+    symbol
+  },
+  events: {
+    click: e => console.log('library item')
+  },
+  children: [symbol]
+}));
 
-app.render(document.body);
+const library = new Library({
+  children: libraryItems,
+  events: {
+    click: e => {
+      console.log('library')
+    }
+  }
+});
+
+
+const keyItems = zip(colorTable,[0, 8, 16, 20, 22]).map(([color, symbolIndex]) => (new KeyItem({
+    data: {
+      color,
+      symbolIndex,
+      library: symbolTable.slice(),
+    },
+    events: {
+      click: e => {
+        console.log('key item');
+      }
+    },
+  }))
+);
+
+const key = new Key({ 
+
+  children: keyItems,
+  data: {
+    colorTable,
+  }
+
+});
+
+const grid = new Grid({
+  children: gridItems,
+  events: {
+    click: e => { console.log('grid') } 
+  }
+});
+
+const app = new App({ 
+
+  children: [
+    grid,
+    key,
+    library
+  ],
+  events: {
+    mouseup: function(e) {
+      console.log('mouse up');
+    }
+  }
+
+});
+
+document.body.appendChild(app.el);
