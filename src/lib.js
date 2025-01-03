@@ -12,6 +12,7 @@ class Component {
     this.el.classList.add(className);
 
     if (render) {
+      // revisit this
       const wrapper = () => {
         const r = render.bind(this);
         return r(this.el, this.data);
@@ -51,7 +52,7 @@ class Component {
 
     this.removeChildren();
 
-    this.children.forEach(child => {
+    (this.children || []).forEach(child => {
       child.parent = this;
       this.el.appendChild(child.el);
     });
