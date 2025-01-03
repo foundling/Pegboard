@@ -22,18 +22,18 @@ const todoList = new Component({
       complete: false,
     },
     events: {
-      click: function(event, data, context) {
-        console.log(event.currentTarget, data);
-      },
       change: function(e, data, context) {
-        console.log('change: ', e.target.checked);
+        console.log({ e, data, context });
       }
     },
     render: function(el, data, context) {
-      globalThis.change = undefined;
       el.insertAdjacentHTML('beforeend', `
         <div>
-          <input type="checkbox" onChange="change" name="todo-item"><span>${data.todo}</span>
+          <input
+            type="checkbox"
+            f="change"
+            name="todo-item">
+            <span>${data.todo}</span>
         </div>
       `);
     }

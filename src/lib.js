@@ -27,25 +27,42 @@ class Component {
 
   bindEvents() {
 
-    const eventNames = Object.keys(this.events); 
+    const possibleHandlers = [
+      'change',
+      'click'
+    ];
 
-    eventNames.forEach(name => {
+    for (const handlerName of possibleHandlers) {
+      if (handlerName in this.events) {
+        const els = this.el.querySelectorAll(`[f='${handlerName}']`)
+        if (els.length) {
+          for (let el of els) {
 
-      const originalFunction = this.events[name];
+            const originalFunction = this.events[handlerName];
 
-      const wrappedHandler = (e) => {
-        return originalFunction(e, this.data, this);
+            const wrappedHandler = (e) => {
+              return originalFunction(e, this.data, this);
+            }
+
+            el.addEventListener(handlerName, wrappedHandler);
+          }
+        }
       }
-
-      this.el.addEventListener(name, wrappedHandler);
-
-    });
+    }
 
   }
 
   emit(name, data) {
     const e = new CustomEvent(name, { bubbles: true, detail: { data } });
     this.el.dispatchEvent(e);
+  }
+
+  beforeRender() {
+  }
+
+  afterRender() {
+    const possibleHandlers = this.el.querySelector('[data-*]');
+    console.log(possibleHandlers);
   }
 
   render(el=this.el, data=this.data) {
